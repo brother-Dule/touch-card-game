@@ -53,7 +53,11 @@ function restartTimer() {
 
 /** Jedina tačka kroz koju prolaze sve akcije. Vraća false za nevalidan potez. */
 function act(action) {
-  if (!state || busy) return false;
+  if (!state) return false;
+  if (busy) {
+    vibrate(30); // dok traje poruka TAČ, ništa se ne igra
+    return false;
+  }
   const { state: next, events } = apply(state, { ...action, now: Date.now() });
   if (events[0]?.type === 'invalid') {
     vibrate(30);
@@ -137,7 +141,9 @@ document.getElementById('menu-btn').addEventListener('click', openMenu);
 resumeBtn.addEventListener('click', () => {
   closeMenu();
   state.autoTouch = settings.autoTouch; // promena moda važi i u toku partije
-  restartTimer();
+  // nastavlja se preostalo vreme – meni ne sme da daje novo vreme za potez
+  if (settings.timer && timer.paused && !busy) timer.resume();
+  else restartTimer();
 });
 
 function startGame() {

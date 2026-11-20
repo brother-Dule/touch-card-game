@@ -49,7 +49,8 @@ export function createUI({ onAction }) {
     q('.touch-btn').addEventListener('pointerdown', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!locked && state && state.winner === null) onAction({ type: 'CALL_TOUCH', player: p });
+      // dok traje poruka TAČ, main.js odbija pritisak i javlja vibracijom
+      if (state && state.winner === null) onAction({ type: 'CALL_TOUCH', player: p });
     });
     return {
       el,
@@ -100,8 +101,8 @@ export function createUI({ onAction }) {
   // ---------- render ----------
   function render(s) {
     state = s;
-    // vruća karta je nestala (istek vremena, TAČ…) – pusti je iz ruke
-    if (drag?.hot && !s.flipped) cancelDrag();
+    // red je prešao na protivnika ili je vruća karta nestala (istek vremena, TAČ…) – pusti kartu iz ruke
+    if (drag && (drag.player !== s.current || s.winner !== null || (drag.hot && !s.flipped))) cancelDrag();
 
     for (const p of [0, 1]) {
       const z = zones[p];
@@ -234,7 +235,7 @@ export function createUI({ onAction }) {
         if (!state.flipped) return; // TAČ – karta se nije ni okrenula
       }
       // karta je sada „vruća“ i prati prst dok se ne spusti
-      drag = { id: e.pointerId, hot: true, moved: true, over: null };
+      drag = { id: e.pointerId, player: p, hot: true, moved: true, over: null };
       drag.ghost = makeGhost(state.flipped);
       render(state);
       moveGhost(e.clientX, e.clientY);
@@ -243,7 +244,7 @@ export function createUI({ onAction }) {
 
     if (kind === 'open' && sourceCard(state, p, 'open')) {
       // karta se „podiže“ odmah na dodir (uvećana i nagnuta), isto kao okrenuta karta
-      drag = { id: e.pointerId, hot: false, moved: true, over: null };
+      drag = { id: e.pointerId, player: p, hot: false, moved: true, over: null };
       drag.src = slot.querySelector('.card');
       drag.src?.classList.add('dragging-src');
       drag.ghost = makeGhost(sourceCard(state, p, 'open'));
@@ -262,14 +263,15 @@ export function createUI({ onAction }) {
     if (!cancelled && d.ghost) moveGhost(e.clientX, e.clientY); // poslednji položaj karte
     const to = cancelled || !d.ghost ? null : targetOf(dropSlot());
     cancelDrag();
+    if (d.player !== state.current) return; // red se promenio dok je karta bila u ruci
     if (d.hot) dropHot(to);
     // karta sa otvorene: spuštena na sredinu/protivnika = potez; bilo gde drugde se vraća
     else if (d.moved && (to === 'center' || to === 'opp')) {
-      onAction({ type: 'PLAY', player: state.current, from: 'open', to });
+      onAction({ type: 'PLAY', player: d.player, from: 'open', to });
     }
     // cela otvorena gomila prevučena na praznu zatvorenu = okreće se licem nadole
-    else if (d.moved && to === 'closed' && !state.players[state.current].closed.length) {
-      onAction({ type: 'RECYCLE', player: state.current });
+    else if (d.moved && to === 'closed' && !state.players[d.player].closed.length) {
+      onAction({ type: 'RECYCLE', player: d.player });
     }
   }
   window.addEventListener('pointerup', (e) => endDrag(e, false));
@@ -279,10 +281,11 @@ export function createUI({ onAction }) {
   function showTouch(evt) {
     const top = touchOverlay.querySelector('.msg.top');
     const bottom = touchOverlay.querySelector('.msg.bottom');
+    const why = evt.violation ?? evt.reason; // ručni TAČ nosi razlog prvobitnog prekršaja
     const text = (p) => {
       const mine = p === evt.offender;
-      if (evt.reason === 'illegal') return mine ? 'Ta karta ne ide tamo! +1 karta' : 'Protivnik je spustio kartu gde ne ide.';
-      if (evt.reason === 'timeout') return mine ? 'Isteklo ti je vreme! +1 karta' : 'Protivniku je isteklo vreme.';
+      if (why === 'illegal') return mine ? 'Ta karta ne ide tamo! +1 karta' : 'Protivnik je spustio kartu gde ne ide.';
+      if (why === 'timeout') return mine ? 'Isteklo ti je vreme! +1 karta' : 'Protivniku je isteklo vreme.';
       return mine ? 'Imao si potez! +1 karta' : 'Protivnik dobija kaznenu kartu.';
     };
     touchOverlay.querySelector('.big').textContent = evt.reason === 'timeout' ? 'VREME!' : 'TAČ!';

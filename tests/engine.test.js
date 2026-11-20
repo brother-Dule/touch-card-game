@@ -308,6 +308,14 @@ test('RUČNI TAČ: primer – 4 na otvorenoj, 3 u sredini, igrač dira zatvorenu
   eq(r.state.current, 1);
 });
 
+test('RUČNI TAČ: poziv nosi razlog prvobitnog prekršaja', () => {
+  let s = make({ autoTouch: false, center: [4], p0: { open: [9] }, p1: { closed: [2, 3] } });
+  s = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'center', now: 1000 }).state;
+  const r = apply(s, { type: 'CALL_TOUCH', player: 1, now: 1200 });
+  eq(r.events[0].reason, 'called');
+  eq(r.events[0].violation, 'illegal');
+});
+
 test('RUČNI TAČ: poziv bez prekršaja nema kazne', () => {
   const s = make({ autoTouch: false, p0: { closed: [4, 5] }, p1: { closed: [6] } });
   const r = apply(s, { type: 'CALL_TOUCH', player: 1, now: 1000 });

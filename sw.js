@@ -1,5 +1,5 @@
 // Mreža prvo, keš kao rezerva – nova verzija sa GitHub-a stiže odmah, a igra radi i bez interneta.
-const CACHE = 'tac-v18';
+const CACHE = 'tac-v19';
 const FILES = ['./', 'index.html', 'css/style.css', 'js/main.js', 'js/ui.js', 'js/engine.js', 'js/timer.js', 'manifest.webmanifest', 'icons/icon.svg'];
 
 self.addEventListener('install', (e) => {
@@ -17,8 +17,10 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy));
+        }
         return res;
       })
       .catch(() => caches.match(e.request)),

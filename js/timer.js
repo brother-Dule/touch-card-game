@@ -8,10 +8,12 @@ export class TurnTimer {
     this.duration = 0;
     this.remaining = 0;
     this.running = false;
+    this.paused = false;
   }
 
   start(ms) {
     this.stop();
+    this.paused = false;
     this.duration = ms;
     this.end = performance.now() + ms;
     this.running = true;
@@ -20,6 +22,7 @@ export class TurnTimer {
 
   stop() {
     this.running = false;
+    this.paused = false;
     cancelAnimationFrame(this.raf);
   }
 

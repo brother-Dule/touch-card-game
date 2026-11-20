@@ -55,7 +55,7 @@ export function createGame({
     current: firstPlayer ?? (rand() < 0.5 ? 0 : 1),
     flipped: null, // karta okrenuta sa zatvorene gomile, čeka da se odigra
     autoTouch,
-    lastViolation: null, // { player, at, turn } – poslednji neprijavljeni prekršaj (ručni TAČ)
+    lastViolation: null, // { player, at, turn, reason } – poslednji neprijavljeni prekršaj (ručni TAČ)
     winner: null,
     turn: 0,
     seq: 0,
@@ -100,12 +100,12 @@ export function cardCount(state, player) {
 
 // ---------- interni pomoćnici (rade nad kopijom stanja) ----------
 
-function penalize(s, offender, events, reason, caller = null) {
+function penalize(s, offender, events, reason, caller = null, violation) {
   const opp = s.players[1 - offender];
   const src = opp.closed.length ? opp.closed : opp.open;
   const card = src.length ? src.shift() : null; // sa dna protivnikove gomile
   if (card) s.players[offender].closed.unshift(card); // na dno svoje zatvorene
-  events.push({ type: 'touch', offender, caller, reason, card });
+  events.push({ type: 'touch', offender, caller, reason, card, ...(violation && { violation }) });
 }
 
 function endTurn(s, events) {
@@ -119,7 +119,7 @@ function endTurn(s, events) {
 }
 
 function recordViolation(s, player, now, events, reason) {
-  s.lastViolation = { player, at: now, turn: s.turn };
+  s.lastViolation = { player, at: now, turn: s.turn, reason };
   events.push({ type: 'violation', player, reason }); // UI ovo ne prikazuje u ručnom modu
 }
 
@@ -189,10 +189,10 @@ export function apply(prev, action) {
         s.players[v.player].open.push(s.flipped);
         s.flipped = null;
       }
-      penalize(s, v.player, events, 'called', p);
+      penalize(s, v.player, events, 'called', p, v.reason);
       endTurn(s, events);
     } else {
-      penalize(s, v.player, events, 'called', p);
+      penalize(s, v.player, events, 'called', p, v.reason);
     }
     checkWin(s, events);
     s.seq++;
