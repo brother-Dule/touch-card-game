@@ -1,0 +1,15 @@
+{
+  "name": "Tač – igra kartama",
+  "short_name": "Tač",
+  "description": "Igra kartama za dva igrača na jednom telefonu.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0b3d26",
+  "theme_color": "#0b3d26",
+  "lang": "sr",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

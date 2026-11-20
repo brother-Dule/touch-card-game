@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tač – testovi</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 16px; background: #fff; color: #111; }
+  .ok { color: #167a3a; } .fail { color: #b3261e; }
+</style>
+</head>
+<body>
+<h1>Testovi logike</h1>
+<div id="summary"></div>
+<ul id="out"></ul>
+<script type="module">
+  import { results } from './engine.test.js';
+  const out = document.getElementById('out');
+  for (const r of results) {
+    const li = document.createElement('li');
+    li.className = r.ok ? 'ok' : 'fail';
+    li.textContent = `${r.ok ? '✓' : '✗'} ${r.name}${r.ok ? '' : ' — ' + r.error}`;
+    out.append(li);
+  }
+  const failed = results.filter((r) => !r.ok).length;
+  document.getElementById('summary').textContent = `${results.length - failed}/${results.length} prošlo`;
+  document.body.dataset.failed = failed;
+</script>
+</body>
+</html>

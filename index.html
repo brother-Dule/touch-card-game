@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b3d26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Tač – igra kartama za dva igrača na jednom telefonu.">
+<title>Tač</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="glow" hidden></div>
+<main id="app">
+  <section class="zone top" id="zone-1" data-player="1"></section>
+  <section id="middle">
+    <button id="menu-btn" class="icon-btn" aria-label="Meni">☰</button>
+    <div class="slot center" data-slot="center" id="center"></div>
+  </section>
+  <section class="zone bottom" id="zone-0" data-player="0"></section>
+</main>
+
+<div id="touch-overlay" class="overlay-msg" hidden>
+  <div class="msg top"></div>
+  <div class="big">TAČ!</div>
+  <div class="msg bottom"></div>
+</div>
+
+<div id="win-overlay" class="modal" hidden>
+  <div class="win-side top"></div>
+  <button id="again-btn" class="primary">Nova igra</button>
+  <div class="win-side bottom"></div>
+</div>
+
+<div id="menu" class="modal">
+  <div class="panel">
+    <h1>Tač</h1>
+    <p class="sub">Igra kartama za dva igrača. Telefon stavite na sto između sebe.</p>
+
+    <label class="row">
+      <span>
+        <b>Vremensko ograničenje</b>
+        <small>Isključi za decu i početnike</small>
+      </span>
+      <input type="checkbox" id="opt-timer" class="switch">
+    </label>
+    <label class="row" id="row-seconds">
+      <span><b>Vreme za potez</b></span>
+      <select id="opt-seconds">
+        <option value="3">3 s</option>
+        <option value="5">5 s</option>
+        <option value="8">8 s</option>
+        <option value="10">10 s</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>
+        <b>Automatski TAČ</b>
+        <small>Isključeno: protivnik sam pritiska dugme TAČ!</small>
+      </span>
+      <input type="checkbox" id="opt-auto" class="switch">
+    </label>
+
+    <div class="buttons">
+      <button id="resume-btn" class="secondary" hidden>Nastavi</button>
+      <button id="start-btn" class="primary">Počni igru</button>
+    </div>
+
+    <details>
+      <summary>Pravila</summary>
+      <ul>
+        <li>Svako ima 26 karata u <b>zatvorenoj</b> gomili. Iznad nje pravi svoju <b>otvorenu</b> gomilu.</li>
+        <li>Na <b>sredinu</b> se ređa rastuće: A, 2, 3 … K, pa opet A. Znak nije bitan.</li>
+        <li>Na <b>protivnikovu otvorenu</b> gomilu stavlja se karta za jedan veća ili manja (na 6 ide 5 ili 7, na A ide K ili 2). Samo je sredina rastući niz. Tek kad je prvi kec na sredini.</li>
+        <li>Prvo igraš kartu sa svoje otvorene gomile: prevuci je na sredinu ili na protivnikovu gomilu.</li>
+        <li>Kad otvorena nema gde: <b>pritisni i drži</b> zatvorenu gomilu. Karta se okreće pod prstom i moraš da je prevučeš na sredinu ili na protivnikovu gomilu.</li>
+        <li>Ako karta nema gde, pusti je bilo gde i ona ide na tvoju otvorenu gomilu. Tada je red na protivniku.</li>
+        <li><b>TAČ!</b> Ko propusti potez ili spusti kartu tamo gde ne ide dobija kaznenu kartu sa dna protivnikove gomile. Igra ne pokazuje koja karta je sledeća ni gde karta može. To moraš sam da znaš.</li>
+        <li><b>Svako mora da igra.</b> Kad istekne vreme, dobijaš kaznenu kartu, sledeća karta se okreće na tvoju otvorenu gomilu i red prelazi na protivnika.</li>
+        <li>Kad se zatvorena potroši, a karta sa vrha otvorene nema gde, <b>prevuci celu otvorenu gomilu</b> na mesto zatvorene. Gomila se okreće licem nadole i igraš dalje. Ako je karta sa vrha imala gde, to je TAČ.</li>
+        <li>Pobeđuje ko se prvi reši svih karata.</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
