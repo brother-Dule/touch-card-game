@@ -1,8 +1,9 @@
 import { createGame, apply } from './engine.js';
 import { createUI } from './ui.js';
 import { TurnTimer } from './timer.js';
+import { LANGS, detectLang, setLang, t } from './i18n.js';
 
-const DEFAULTS = { timer: true, seconds: 5, autoTouch: true };
+const DEFAULTS = { timer: true, seconds: 5, autoTouch: true, lang: detectLang() };
 const KEY = 'tac-settings';
 
 function loadSettings() {
@@ -102,6 +103,8 @@ const menu = document.getElementById('menu');
 const optTimer = document.getElementById('opt-timer');
 const optSeconds = document.getElementById('opt-seconds');
 const optAuto = document.getElementById('opt-auto');
+const optLang = document.getElementById('opt-lang');
+optLang.append(...Object.entries(LANGS).map(([code, name]) => new Option(name, code)));
 const rowSeconds = document.getElementById('row-seconds');
 const resumeBtn = document.getElementById('resume-btn');
 const startBtn = document.getElementById('start-btn');
@@ -110,6 +113,10 @@ function applySettingsToPage() {
   optTimer.checked = settings.timer;
   optSeconds.value = String(settings.seconds);
   optAuto.checked = settings.autoTouch;
+  optLang.value = settings.lang;
+  setLang(settings.lang);
+  updateStartLabel();
+  if (state) ui.render(state);
   rowSeconds.classList.toggle('disabled', !settings.timer);
   optSeconds.disabled = !settings.timer;
   document.body.classList.toggle('no-timer', !settings.timer);
@@ -117,18 +124,21 @@ function applySettingsToPage() {
 }
 
 function readSettings() {
-  settings = { timer: optTimer.checked, seconds: +optSeconds.value, autoTouch: optAuto.checked };
+  settings = { timer: optTimer.checked, seconds: +optSeconds.value, autoTouch: optAuto.checked, lang: optLang.value };
   saveSettings();
   applySettingsToPage();
 }
-[optTimer, optSeconds, optAuto].forEach((el) => el.addEventListener('change', readSettings));
+[optTimer, optSeconds, optAuto, optLang].forEach((el) => el.addEventListener('change', readSettings));
 
 function openMenu() {
   timer.pause();
-  const inGame = state && state.winner === null;
-  resumeBtn.hidden = !inGame;
-  startBtn.textContent = inGame ? 'Nova igra' : 'Počni igru';
+  resumeBtn.hidden = !(state && state.winner === null);
+  updateStartLabel();
   menu.hidden = false;
+}
+
+function updateStartLabel() {
+  startBtn.textContent = state && state.winner === null ? t('newGame') : t('start');
 }
 
 function closeMenu() {

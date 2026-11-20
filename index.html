@@ -19,7 +19,7 @@
 <main id="app">
   <section class="zone top" id="zone-1" data-player="1"></section>
   <section id="middle">
-    <button id="menu-btn" class="icon-btn" aria-label="Meni">☰</button>
+    <button id="menu-btn" class="icon-btn" aria-label="Meni" data-i18n-aria="menu">☰</button>
     <div class="slot center" data-slot="center" id="center"></div>
   </section>
   <section class="zone bottom" id="zone-0" data-player="0"></section>
@@ -27,30 +27,35 @@
 
 <div id="touch-overlay" class="overlay-msg" hidden>
   <div class="msg top"></div>
-  <div class="big">TAČ!</div>
+  <div class="big" data-i18n="touch">TAČ!</div>
   <div class="msg bottom"></div>
 </div>
 
 <div id="win-overlay" class="modal" hidden>
   <div class="win-side top"></div>
-  <button id="again-btn" class="primary">Nova igra</button>
+  <button id="again-btn" class="primary" data-i18n="newGame">Nova igra</button>
   <div class="win-side bottom"></div>
 </div>
 
 <div id="menu" class="modal">
   <div class="panel">
-    <h1>Tač</h1>
-    <p class="sub">Igra kartama za dva igrača. Telefon stavite na sto između sebe.</p>
+    <h1 data-i18n="title">Tač</h1>
+    <p class="sub" data-i18n="sub">Igra kartama za dva igrača. Telefon stavite na sto između sebe.</p>
+
+    <label class="row">
+      <span><b data-i18n="optLang">Jezik</b></span>
+      <select id="opt-lang"></select>
+    </label>
 
     <label class="row">
       <span>
-        <b>Vremensko ograničenje</b>
-        <small>Isključi za decu i početnike</small>
+        <b data-i18n="optTimer">Vremensko ograničenje</b>
+        <small data-i18n="optTimerHint">Isključi za decu i početnike</small>
       </span>
       <input type="checkbox" id="opt-timer" class="switch">
     </label>
     <label class="row" id="row-seconds">
-      <span><b>Vreme za potez</b></span>
+      <span><b data-i18n="optSeconds">Vreme za potez</b></span>
       <select id="opt-seconds">
         <option value="3">3 s</option>
         <option value="5">5 s</option>
@@ -60,31 +65,20 @@
     </label>
     <label class="row">
       <span>
-        <b>Automatski TAČ</b>
-        <small>Isključeno: protivnik sam pritiska dugme TAČ! pre svog prvog poteza</small>
+        <b data-i18n="optAuto">Automatski TAČ</b>
+        <small data-i18n="optAutoHint">Isključeno: protivnik sam pritiska dugme TAČ! pre svog prvog poteza</small>
       </span>
       <input type="checkbox" id="opt-auto" class="switch">
     </label>
 
     <div class="buttons">
-      <button id="resume-btn" class="secondary" hidden>Nastavi</button>
+      <button id="resume-btn" class="secondary" hidden data-i18n="resume">Nastavi</button>
       <button id="start-btn" class="primary">Počni igru</button>
     </div>
 
     <details>
-      <summary>Pravila</summary>
-      <ul>
-        <li>Svako ima 26 karata u <b>zatvorenoj</b> gomili. Iznad nje pravi svoju <b>otvorenu</b> gomilu.</li>
-        <li>Na <b>sredinu</b> se ređa rastuće: A, 2, 3 … K, pa opet A. Znak nije bitan.</li>
-        <li>Na <b>protivnikovu otvorenu</b> gomilu stavlja se karta za jedan veća ili manja (na 6 ide 5 ili 7, na A ide K ili 2). Samo je sredina rastući niz. Tek kad je prvi kec na sredini.</li>
-        <li>Prvo igraš kartu sa svoje otvorene gomile: prevuci je na sredinu ili na protivnikovu gomilu.</li>
-        <li>Kad otvorena nema gde: <b>pritisni i drži</b> zatvorenu gomilu. Karta se okreće pod prstom i moraš da je prevučeš na sredinu ili na protivnikovu gomilu.</li>
-        <li>Ako karta nema gde, pusti je bilo gde i ona ide na tvoju otvorenu gomilu. Tada je red na protivniku.</li>
-        <li><b>TAČ!</b> Ko propusti potez ili spusti kartu tamo gde ne ide dobija kaznenu kartu sa dna protivnikove gomile. Igra ne pokazuje koja karta je sledeća ni gde karta može. To moraš sam da znaš.</li>
-        <li><b>Svako mora da igra.</b> Kad istekne vreme, dobijaš kaznenu kartu, sledeća karta se okreće na tvoju otvorenu gomilu i red prelazi na protivnika.</li>
-        <li>Kad se zatvorena potroši, a karta sa vrha otvorene nema gde, <b>prevuci celu otvorenu gomilu</b> na mesto zatvorene. Gomila se okreće licem nadole i igraš dalje. Ako je karta sa vrha imala gde, to je TAČ.</li>
-        <li>Pobeđuje ko se prvi reši svih karata.</li>
-      </ul>
+      <summary data-i18n="rulesTitle">Pravila</summary>
+      <ul data-i18n-html="rules"></ul>
     </details>
   </div>
 </div>

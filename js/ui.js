@@ -6,6 +6,7 @@
 // otvorena gomila se prevlači na mesto zatvorene i okreće se licem nadole.
 // Karta spuštena tamo gde ne ide = TAČ.
 import { RANKS, SUITS, isRed, sourceCard } from './engine.js';
+import { t } from './i18n.js';
 
 const TIME_COLORS = [
   [0.5, [76, 175, 80]],
@@ -41,7 +42,7 @@ export function createUI({ onAction }) {
       <div class="aside">
         <span class="secs"></span>
         <span class="status"></span>
-        <button class="touch-btn" type="button">TAČ!</button>
+        <button class="touch-btn" type="button" data-i18n="touch">TAČ!</button>
       </div>`;
     const q = (s) => el.querySelector(s);
     // pointerdown umesto click: na telefonu click često ne stigne dok drugi prst drži kartu,
@@ -119,7 +120,8 @@ export function createUI({ onAction }) {
       z.closed.classList.toggle('refill', active && !s.flipped && !pl.closed.length && pl.open.length > 0);
       z.nClosed.textContent = pl.closed.length + (active && s.flipped ? 1 : 0);
       z.nOpen.textContent = pl.open.length;
-      z.status.textContent = active ? 'Tvoj potez' : 'Čekaj';
+      z.status.textContent = active ? t('yourTurn') : t('wait');
+      z.closed.dataset.hint = t('refillHint');
     }
     const top = s.center[s.center.length - 1] ?? null;
     renderSlot(centerEl, top, { count: s.center.length });
@@ -284,11 +286,10 @@ export function createUI({ onAction }) {
     const why = evt.violation ?? evt.reason; // ručni TAČ nosi razlog prvobitnog prekršaja
     const text = (p) => {
       const mine = p === evt.offender;
-      if (why === 'illegal') return mine ? 'Ta karta ne ide tamo! +1 karta' : 'Protivnik je spustio kartu gde ne ide.';
-      if (why === 'timeout') return mine ? 'Isteklo ti je vreme! +1 karta' : 'Protivniku je isteklo vreme.';
-      return mine ? 'Imao si potez! +1 karta' : 'Protivnik dobija kaznenu kartu.';
+      const kind = why === 'illegal' || why === 'timeout' ? why : 'missed';
+      return t(kind + (mine ? 'Mine' : 'Opp'));
     };
-    touchOverlay.querySelector('.big').textContent = evt.reason === 'timeout' ? 'VREME!' : 'TAČ!';
+    touchOverlay.querySelector('.big').textContent = evt.reason === 'timeout' ? t('time') : t('touch');
     top.textContent = text(1);
     bottom.textContent = text(0);
     touchOverlay.hidden = false;
@@ -301,8 +302,8 @@ export function createUI({ onAction }) {
   }
 
   function showWin(winner) {
-    winOverlay.querySelector('.win-side.top').textContent = winner === 1 ? 'Pobeda! 🎉' : 'Poraz';
-    winOverlay.querySelector('.win-side.bottom').textContent = winner === 0 ? 'Pobeda! 🎉' : 'Poraz';
+    winOverlay.querySelector('.win-side.top').textContent = winner === 1 ? t('win') : t('lose');
+    winOverlay.querySelector('.win-side.bottom').textContent = winner === 0 ? t('win') : t('lose');
     winOverlay.hidden = false;
   }
 

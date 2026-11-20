@@ -212,7 +212,7 @@ html, body {
 .card.ghost.flip180 { rotate: 255deg; }
 .card.dragging-src { opacity: 0.3; }
 .slot.closed.refill::after {
-  content: "Prevuci otvorenu gomilu ovde";
+  content: attr(data-hint);
   position: absolute;
   inset: 0;
   display: grid;
