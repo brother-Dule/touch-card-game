@@ -44,7 +44,11 @@ export function createUI({ onAction }) {
         <button class="touch-btn" type="button">TAČ!</button>
       </div>`;
     const q = (s) => el.querySelector(s);
-    q('.touch-btn').addEventListener('click', () => {
+    // pointerdown umesto click: na telefonu click često ne stigne dok drugi prst drži kartu,
+    // a TAČ mora da se uhvati baš dok protivnik drži kartu sa zatvorene gomile
+    q('.touch-btn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (!locked && state && state.winner === null) onAction({ type: 'CALL_TOUCH', player: p });
     });
     return {
