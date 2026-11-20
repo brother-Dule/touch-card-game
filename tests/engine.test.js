@@ -262,15 +262,31 @@ test('RUČNI TAČ: ispravan poziv kažnjava prekršioca i prekida potez', () => 
   eq(r.state.players[0].closed[0].r, 2);
 });
 
-test('RUČNI TAČ: kasni poziv posle isteka prozora je pogrešan', () => {
+test('RUČNI TAČ: prekršaj koji završi potez može se prijaviti još 3 s, posle se ignoriše', () => {
   let s = make({ autoTouch: false, center: [4], flipped: 5 });
   s = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'own', now: 1000 }).state;
   eq(s.current, 1);
   const ok = apply(s, { type: 'CALL_TOUCH', player: 1, now: 3000 });
   eq(ok.events[0].offender, 0);
+  // sada je igrač 1 na potezu – kasni pritisak se ignoriše, bez kazne
   const late = apply(s, { type: 'CALL_TOUCH', player: 1, now: 9000 });
-  eq(late.events[0].reason, 'false-call');
-  eq(late.events[0].offender, 1);
+  eq(late.events[0].reason, 'only-waiting-player');
+});
+
+test('RUČNI TAČ: igrač na potezu ne može da pozove TAČ', () => {
+  const s = make({ autoTouch: false, current: 0, p0: { closed: [4, 5] }, p1: { closed: [6] } });
+  const r = apply(s, { type: 'CALL_TOUCH', player: 0, now: 1000 });
+  eq(r.events[0].reason, 'only-waiting-player');
+  eq(r.state, s);
+});
+
+test('RUČNI TAČ: primer – 4 na otvorenoj, 3 u sredini, igrač dira zatvorenu', () => {
+  let s = make({ autoTouch: false, center: [3], p0: { open: [4], closed: [8] }, p1: { open: [10], closed: [2, 3] } });
+  s = apply(s, { type: 'FLIP', player: 0, now: 1000 }).state;
+  const r = apply(s, { type: 'CALL_TOUCH', player: 1, now: 1400 });
+  eq(r.events[0].offender, 0);
+  eq(r.events[0].reason, 'called');
+  eq(r.state.current, 1);
 });
 
 test('RUČNI TAČ: pogrešan poziv kažnjava onog ko je pozvao', () => {

@@ -170,7 +170,7 @@ const invalid = (state, reason) => ({ state, events: [{ type: 'invalid', reason 
  *  { type: 'PLAY', player, from, to }           – from: 'open'|'flipped', to: 'center'|'opp'|'own'
  *                                                 (karta na mesto gde ne ide = TAČ)
  *  { type: 'TIMEOUT', player }                  – isteklo vreme: kazna + okrenuta karta na svoju otvorenu, kraj poteza
- *  { type: 'CALL_TOUCH', player }               – ručni TAČ (player = onaj ko poziva)
+ *  { type: 'CALL_TOUCH', player }               – ručni TAČ (player = onaj ko poziva; samo igrač koji čeka)
  * Svaka akcija može imati `now` (ms) – podrazumevano Date.now().
  */
 export function apply(prev, action) {
@@ -183,6 +183,9 @@ export function apply(prev, action) {
   if (action.type === 'CALL_TOUCH') {
     const v = s.lastViolation;
     const fresh = v && v.player !== p && (now - v.at <= s.touchWindowMs || v.turn === s.turn);
+    // TAČ poziva igrač koji čeka na svoj red. Izuzetak: prekršaj koji je sam završio potez
+    // (npr. karta stavljena na svoju gomilu) može se prijaviti još par sekundi posle toga.
+    if (p === s.current && !fresh) return invalid(prev, 'only-waiting-player');
     if (fresh) {
       s.lastViolation = null;
       if (s.current === v.player) {

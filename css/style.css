@@ -117,6 +117,8 @@ html, body {
 }
 .touch-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7f1414; }
 .manual-touch .touch-btn { display: block; }
+/* igrač na potezu ne poziva TAČ (osim par sekundi posle protivnikovog poteza) – dugme je prigušeno */
+.manual-touch .zone.active .touch-btn { opacity: 0.35; }
 
 /* ---------- mesta za karte: gomile leže položene (karta okrenuta za 90°) ---------- */
 .slot {
