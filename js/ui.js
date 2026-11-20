@@ -277,7 +277,6 @@ export function createUI({ onAction }) {
     const bottom = touchOverlay.querySelector('.msg.bottom');
     const text = (p) => {
       const mine = p === evt.offender;
-      if (evt.reason === 'false-call') return mine ? 'Pogrešan TAČ! Dobijaš kaznenu kartu.' : 'Protivnik je pogrešno pozvao TAČ.';
       if (evt.reason === 'illegal') return mine ? 'Ta karta ne ide tamo! +1 karta' : 'Protivnik je spustio kartu gde ne ide.';
       if (evt.reason === 'timeout') return mine ? 'Isteklo ti je vreme! +1 karta' : 'Protivniku je isteklo vreme.';
       return mine ? 'Imao si potez! +1 karta' : 'Protivnik dobija kaznenu kartu.';

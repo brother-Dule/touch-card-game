@@ -33,7 +33,6 @@ export function createDeck() {
 export function createGame({
   seed = Date.now(),
   autoTouch = true,
-  touchWindowMs = 3000,
   firstPlayer,
   deck,
 } = {}) {
@@ -56,8 +55,7 @@ export function createGame({
     current: firstPlayer ?? (rand() < 0.5 ? 0 : 1),
     flipped: null, // karta okrenuta sa zatvorene gomile, čeka da se odigra
     autoTouch,
-    touchWindowMs,
-    lastViolation: null, // { player, at, turn } – za ručni TAČ
+    lastViolation: null, // { player, at, turn } – poslednji neprijavljeni prekršaj (ručni TAČ)
     winner: null,
     turn: 0,
     seq: 0,
@@ -170,7 +168,7 @@ const invalid = (state, reason) => ({ state, events: [{ type: 'invalid', reason 
  *  { type: 'PLAY', player, from, to }           – from: 'open'|'flipped', to: 'center'|'opp'|'own'
  *                                                 (karta na mesto gde ne ide = TAČ)
  *  { type: 'TIMEOUT', player }                  – isteklo vreme: kazna + okrenuta karta na svoju otvorenu, kraj poteza
- *  { type: 'CALL_TOUCH', player }               – ručni TAČ (player = onaj ko poziva; samo igrač koji čeka)
+ *  { type: 'CALL_TOUCH', player }               – ručni TAČ (player = onaj ko poziva, kažnjava se samo protivnik)
  * Svaka akcija može imati `now` (ms) – podrazumevano Date.now().
  */
 export function apply(prev, action) {
@@ -181,25 +179,20 @@ export function apply(prev, action) {
   const p = action.player;
 
   if (action.type === 'CALL_TOUCH') {
+    // TAČ se poziva samo protiv protivnika, i to samo jednom za isti prekršaj.
+    // Bez prijavljenog prekršaja pritisak ne radi ništa (niko ne kažnjava sam sebe).
     const v = s.lastViolation;
-    const fresh = v && v.player !== p && (now - v.at <= s.touchWindowMs || v.turn === s.turn);
-    // TAČ poziva igrač koji čeka na svoj red. Izuzetak: prekršaj koji je sam završio potez
-    // (npr. karta stavljena na svoju gomilu) može se prijaviti još par sekundi posle toga.
-    if (p === s.current && !fresh) return invalid(prev, 'only-waiting-player');
-    if (fresh) {
-      s.lastViolation = null;
-      if (s.current === v.player) {
-        if (s.flipped) {
-          s.players[v.player].open.push(s.flipped);
-          s.flipped = null;
-        }
-        penalize(s, v.player, events, 'called', p);
-        endTurn(s, events);
-      } else {
-        penalize(s, v.player, events, 'called', p);
+    if (!v || v.player !== 1 - p) return invalid(prev, 'no-violation');
+    s.lastViolation = null;
+    if (s.current === v.player) {
+      if (s.flipped) {
+        s.players[v.player].open.push(s.flipped);
+        s.flipped = null;
       }
+      penalize(s, v.player, events, 'called', p);
+      endTurn(s, events);
     } else {
-      penalize(s, p, events, 'false-call', p);
+      penalize(s, v.player, events, 'called', p);
     }
     checkWin(s, events);
     s.seq++;
@@ -207,6 +200,8 @@ export function apply(prev, action) {
   }
 
   if (p !== s.current) return invalid(prev, 'not-your-turn');
+  // Protivnikov prekršaj može da se prijavi dok igrač ne odigra svoj prvi potez.
+  if (s.lastViolation && s.lastViolation.player !== p) s.lastViolation = null;
 
   switch (action.type) {
     case 'FLIP': {

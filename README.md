@@ -13,7 +13,7 @@ Pravila su sa [igresakartama.com/tac](https://igresakartama.com/tac/), prilagođ
 
 ## Podešavanja
 - **Vremensko ograničenje**: uključeno/isključeno, a vreme za potez je 3, 5, 8 ili 10 s. Gradijent kreće od ivice ekrana igrača na potezu ka protivniku i povlači se kako vreme ističe, menjajući boju od zelene preko žute do crvene. Svako mora da igra: kad vreme istekne, igrač dobija kaznenu kartu, sledeća karta iz zatvorene gomile ide na njegovu otvorenu (aplikacija je nikad ne igra u njegovu korist) i red prelazi na protivnika.
-- **Automatski TAČ**: kad je isključen, aplikacija ne prijavljuje prekršaj sama. Protivnik ga prijavljuje dugmetom **TAČ!** na svom kraju ekrana: tokom poteza prekršioca ili do 3 s posle njega. Ko pozove TAČ, a prekršaja nije bilo, sam dobija kaznenu kartu.
+- **Automatski TAČ**: kad je isključen, aplikacija ne prijavljuje prekršaj sama. Svaki igrač ima dugme **TAČ!** na svom kraju ekrana, uvek aktivno. Pritisak kažnjava samo protivnika, i to samo ako je napravio prekršaj koji još nije prijavljen: tokom njegovog poteza ili dok ti ne odigraš svoj prvi potez posle njega. Isti prekršaj se prijavljuje samo jednom, a pritisak bez prekršaja ne radi ništa.
 
 ## Pokretanje lokalno
 ```bash
