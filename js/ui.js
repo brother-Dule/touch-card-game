@@ -238,19 +238,17 @@ export function createUI({ onAction }) {
     }
 
     if (kind === 'open' && sourceCard(state, p, 'open')) {
-      drag = { id: e.pointerId, hot: false, slot, x: e.clientX, y: e.clientY, moved: false, over: null };
+      // karta se „podiže“ odmah na dodir (uvećana i nagnuta), isto kao okrenuta karta
+      drag = { id: e.pointerId, hot: false, moved: true, over: null };
+      drag.src = slot.querySelector('.card');
+      drag.src?.classList.add('dragging-src');
+      drag.ghost = makeGhost(sourceCard(state, p, 'open'));
+      moveGhost(e.clientX, e.clientY);
     }
   });
 
   window.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.id) return;
-    if (!drag.moved) {
-      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 10) return;
-      drag.moved = true;
-      drag.src = drag.slot.querySelector('.card');
-      drag.src?.classList.add('dragging-src');
-      drag.ghost = makeGhost(sourceCard(state, state.current, 'open'));
-    }
     moveGhost(e.clientX, e.clientY);
   });
 
