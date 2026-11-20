@@ -16,7 +16,7 @@ Pravila su sa [igresakartama.com/tac](https://igresakartama.com/tac/), prilagođ
 - **Automatski TAČ**: kad je isključen, aplikacija ne prijavljuje prekršaj sama. Svaki igrač ima dugme **TAČ!** na svom kraju ekrana, uvek aktivno. Pritisak kažnjava samo protivnika, i to samo ako je napravio prekršaj koji još nije prijavljen: tokom njegovog poteza ili dok ti ne odigraš svoj prvi potez posle njega. Isti prekršaj se prijavljuje samo jednom, a pritisak bez prekršaja ne radi ništa.
 
 ## Jezici
-Igra je na srpskom (latinica i ćirilica) i engleskom. Jezik se bira u meniju, a prvi put se uzima jezik telefona. Prevodi su u `js/i18n.js`: novi jezik se dodaje kao još jedan objekat sa istim ključevima kao `sr`. Ćirilica se pravi automatski iz latinice.
+Igra je na srpskom (latinica i ćirilica), engleskom, nemačkom, francuskom, španskom, italijanskom, poljskom i norveškom. Jezik se bira u meniju, a prvi put se uzima jezik telefona. Prevodi su u `js/i18n.js`: novi jezik se dodaje kao još jedan objekat sa istim ključevima kao `sr`. Ćirilica se pravi automatski iz latinice.
 
 ## Pokretanje lokalno
 ```bash

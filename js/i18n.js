@@ -83,6 +83,192 @@ const en = {
     <li>The first player to get rid of all their cards wins.</li>`,
 };
 
+const nb = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Et kortspill for to spillere. Legg telefonen på bordet mellom dere.",
+  optLang: "Språk",
+  optTimer: "Tidsbegrensning",
+  optTimerHint: "Slå av for barn og nybegynnere",
+  optSeconds: "Tid per trekk",
+  optAuto: "Automatisk TOUCH",
+  optAutoHint: "Av: motspilleren trykker selv på TOUCH! før sitt første trekk",
+  resume: "Fortsett",
+  start: "Start spillet",
+  newGame: "Nytt spill",
+  rulesTitle: "Regler",
+  menu: "Meny",
+  touch: "TOUCH!",
+  time: "TID!",
+  yourTurn: "Din tur",
+  wait: "Vent",
+  refillHint: "Dra den åpne bunken hit",
+  illegalMine: "Det kortet passer ikke der! +1 kort",
+  illegalOpp: "Motspilleren la et kort der det ikke passer.",
+  timeoutMine: "Tiden din er ute! +1 kort",
+  timeoutOpp: "Motspillerens tid er ute.",
+  missedMine: "Du hadde et trekk! +1 kort",
+  missedOpp: "Motspilleren får et straffekort.",
+  win: "Du vant! 🎉",
+  lose: "Du tapte",
+  rules: "<li>Hver spiller har 26 kort i en <b>lukket</b> bunke. Over den bygger hver sin <b>åpne</b> bunke.</li><li><b>Midtbunken</b> går oppover: A, 2, 3 … K, og så A igjen. Fargen spiller ingen rolle.</li><li>På <b>motspillerens åpne</b> bunke kan du legge et kort som er én høyere eller én lavere (5 eller 7 på en 6; K eller 2 på et A). Bare midten må gå oppover. Først når det første esset ligger i midten.</li><li>Spill først kortet fra den åpne bunken din: dra det til midten eller over på motspillerens bunke.</li><li>Hvis det åpne kortet ikke kan legges noe sted, <b>trykk og hold</b> på den lukkede bunken. Kortet snus under fingeren, og du må dra det til midten eller over på motspillerens bunke.</li><li>Hvis kortet ikke kan legges noe sted, slipp det hvor som helst, så havner det på den åpne bunken din. Da er det motspillerens tur.</li><li><b>TOUCH!</b> Den som går glipp av et trekk eller legger et kort der det ikke passer, får et straffekort fra bunnen av motspillerens bunke. Spillet viser aldri hvilket kort som er neste, eller hvor et kort passer. Det må du vite selv.</li><li><b>Alle må spille.</b> Når tiden er ute, får du et straffekort, neste kort snus over på den åpne bunken din, og det blir motspillerens tur.</li><li>Når den lukkede bunken er tom og det øverste åpne kortet ikke kan legges noe sted, <b>dra hele den åpne bunken</b> til plassen for den lukkede. Den snus med bildesiden ned, og du spiller videre. Hvis det øverste kortet kunne vært spilt, er det TOUCH.</li><li>Den som først blir kvitt alle kortene sine, vinner.</li>",
+};
+
+const fr = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Un jeu de cartes pour deux joueurs. Posez le téléphone sur la table entre vous.",
+  optLang: "Langue",
+  optTimer: "Limite de temps",
+  optTimerHint: "À désactiver pour les enfants et les débutants",
+  optSeconds: "Temps par tour",
+  optAuto: "TOUCH automatique",
+  optAutoHint: "Désactivé : l'adversaire appuie lui-même sur TOUCH ! avant son premier coup",
+  resume: "Reprendre",
+  start: "Commencer",
+  newGame: "Nouvelle partie",
+  rulesTitle: "Règles",
+  menu: "Menu",
+  touch: "TOUCH !",
+  time: "TEMPS !",
+  yourTurn: "À toi de jouer",
+  wait: "Attends",
+  refillHint: "Fais glisser ta pile ouverte ici",
+  illegalMine: "Cette carte ne va pas là ! +1 carte",
+  illegalOpp: "L'adversaire a posé une carte au mauvais endroit.",
+  timeoutMine: "Ton temps est écoulé ! +1 carte",
+  timeoutOpp: "Le temps de l'adversaire est écoulé.",
+  missedMine: "Tu avais un coup à jouer ! +1 carte",
+  missedOpp: "L'adversaire reçoit une carte de pénalité.",
+  win: "Victoire ! 🎉",
+  lose: "Défaite",
+  rules: "<li>Chaque joueur a 26 cartes dans une pile <b>fermée</b>. Au-dessus, il construit sa pile <b>ouverte</b>.</li><li>La pile du <b>centre</b> monte : A, 2, 3 … K, puis de nouveau A. La couleur ne compte pas.</li><li>Sur la <b>pile ouverte de l'adversaire</b>, on pose une carte d'un rang au-dessus ou en dessous (5 ou 7 sur un 6 ; K ou 2 sur un A). Seul le centre doit monter. Seulement une fois le premier as posé au centre.</li><li>Joue d'abord la carte de ta pile ouverte : fais-la glisser au centre ou sur la pile de l'adversaire.</li><li>Si ta carte ouverte ne peut aller nulle part, <b>appuie longuement</b> sur ta pile fermée. La carte se retourne sous ton doigt et tu dois la faire glisser au centre ou sur la pile de l'adversaire.</li><li>Si cette carte ne peut aller nulle part, lâche-la n'importe où : elle va sur ta pile ouverte. C'est alors au tour de l'adversaire.</li><li><b>TOUCH !</b> Celui qui rate un coup ou pose une carte au mauvais endroit reçoit une carte de pénalité prise sous la pile de l'adversaire. Le jeu ne montre jamais quelle carte vient ensuite ni où une carte peut aller. À toi de le savoir.</li><li><b>Tout le monde doit jouer.</b> Quand ton temps est écoulé, tu reçois une carte de pénalité, ta carte suivante est retournée sur ta pile ouverte et c'est au tour de l'adversaire.</li><li>Quand ta pile fermée est vide et que la carte du dessus de ta pile ouverte ne peut aller nulle part, <b>fais glisser toute la pile ouverte</b> à la place de la pile fermée. Elle se retourne face cachée et tu continues. Si la carte du dessus pouvait être jouée, c'est un TOUCH.</li><li>Le premier qui se débarrasse de toutes ses cartes gagne.</li>",
+};
+
+const es = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Un juego de cartas para dos jugadores. Coloquen el teléfono sobre la mesa, entre los dos.",
+  optLang: "Idioma",
+  optTimer: "Límite de tiempo",
+  optTimerHint: "Desactívalo para niños y principiantes",
+  optSeconds: "Tiempo por turno",
+  optAuto: "TOUCH automático",
+  optAutoHint: "Desactivado: el rival pulsa ¡TOUCH! antes de su primera jugada",
+  resume: "Continuar",
+  start: "Empezar",
+  newGame: "Nueva partida",
+  rulesTitle: "Reglas",
+  menu: "Menú",
+  touch: "¡TOUCH!",
+  time: "¡TIEMPO!",
+  yourTurn: "Tu turno",
+  wait: "Espera",
+  refillHint: "Arrastra aquí tu pila abierta",
+  illegalMine: "¡Esa carta no va ahí! +1 carta",
+  illegalOpp: "Tu rival puso una carta donde no va.",
+  timeoutMine: "¡Se acabó tu tiempo! +1 carta",
+  timeoutOpp: "Se acabó el tiempo de tu rival.",
+  missedMine: "¡Tenías una jugada! +1 carta",
+  missedOpp: "Tu rival recibe una carta de castigo.",
+  win: "¡Victoria! 🎉",
+  lose: "Derrota",
+  rules: "<li>Cada jugador tiene 26 cartas en una pila <b>cerrada</b>. Encima construye su pila <b>abierta</b>.</li><li>La pila del <b>centro</b> sube: A, 2, 3 … K y otra vez A. El palo no importa.</li><li>En la <b>pila abierta del rival</b> se pone una carta uno más alta o uno más baja (5 o 7 sobre un 6; K o 2 sobre un A). Solo el centro tiene que subir. Solo cuando el primer as ya está en el centro.</li><li>Primero juega la carta de tu pila abierta: arrástrala al centro o a la pila del rival.</li><li>Si tu carta abierta no tiene dónde ir, <b>mantén pulsada</b> tu pila cerrada. La carta se da la vuelta bajo tu dedo y debes arrastrarla al centro o a la pila del rival.</li><li>Si esa carta no tiene dónde ir, suéltala en cualquier sitio e irá a tu pila abierta. Entonces es el turno del rival.</li><li><b>¡TOUCH!</b> Quien se salta una jugada o pone una carta donde no va recibe una carta de castigo de debajo de la pila del rival. El juego nunca muestra qué carta va después ni dónde cabe una carta. Tienes que saberlo tú.</li><li><b>Todos tienen que jugar.</b> Cuando se acaba tu tiempo, recibes una carta de castigo, tu siguiente carta se da la vuelta sobre tu pila abierta y el turno pasa al rival.</li><li>Cuando tu pila cerrada se acaba y la carta de arriba de la abierta no tiene dónde ir, <b>arrastra toda la pila abierta</b> al lugar de la cerrada. Se da la vuelta boca abajo y sigues jugando. Si la carta de arriba se podía jugar, es TOUCH.</li><li>Gana quien primero se queda sin cartas.</li>",
+};
+
+const de = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Ein Kartenspiel für zwei Spieler. Legt das Handy zwischen euch auf den Tisch.",
+  optLang: "Sprache",
+  optTimer: "Zeitlimit",
+  optTimerHint: "Für Kinder und Anfänger ausschalten",
+  optSeconds: "Zeit pro Zug",
+  optAuto: "Automatisches TOUCH",
+  optAutoHint: "Aus: Der Gegner drückt TOUCH! selbst, vor seinem ersten Zug",
+  resume: "Weiter",
+  start: "Spiel starten",
+  newGame: "Neues Spiel",
+  rulesTitle: "Regeln",
+  menu: "Menü",
+  touch: "TOUCH!",
+  time: "ZEIT!",
+  yourTurn: "Du bist dran",
+  wait: "Warte",
+  refillHint: "Offenen Stapel hierher ziehen",
+  illegalMine: "Diese Karte passt da nicht! +1 Karte",
+  illegalOpp: "Dein Gegner hat eine Karte falsch abgelegt.",
+  timeoutMine: "Deine Zeit ist um! +1 Karte",
+  timeoutOpp: "Die Zeit deines Gegners ist um.",
+  missedMine: "Du hattest einen Zug! +1 Karte",
+  missedOpp: "Dein Gegner bekommt eine Strafkarte.",
+  win: "Gewonnen! 🎉",
+  lose: "Verloren",
+  rules: "<li>Jeder Spieler hat 26 Karten in einem <b>verdeckten</b> Stapel. Darüber baut er seinen <b>offenen</b> Stapel.</li><li>Auf die <b>Mitte</b> wird aufsteigend gelegt: A, 2, 3 … K, dann wieder A. Die Farbe spielt keine Rolle.</li><li>Auf den <b>offenen Stapel des Gegners</b> legst du eine Karte, die um eins höher oder niedriger ist (5 oder 7 auf eine 6; K oder 2 auf ein A). Nur die Mitte muss aufsteigen. Erst wenn das erste Ass in der Mitte liegt.</li><li>Spiele zuerst die Karte von deinem offenen Stapel: Zieh sie in die Mitte oder auf den Stapel des Gegners.</li><li>Wenn deine offene Karte nirgends passt, <b>halte</b> deinen verdeckten Stapel <b>gedrückt</b>. Die Karte dreht sich unter deinem Finger um, und du musst sie in die Mitte oder auf den Stapel des Gegners ziehen.</li><li>Wenn diese Karte nirgends passt, lass sie irgendwo los, dann landet sie auf deinem offenen Stapel. Danach ist der Gegner dran.</li><li><b>TOUCH!</b> Wer einen Zug verpasst oder eine Karte falsch ablegt, bekommt eine Strafkarte von unten aus dem Stapel des Gegners. Das Spiel zeigt nie, welche Karte als Nächstes kommt oder wo eine Karte passt. Das musst du selbst wissen.</li><li><b>Jeder muss spielen.</b> Wenn deine Zeit um ist, bekommst du eine Strafkarte, deine nächste Karte wird auf deinen offenen Stapel aufgedeckt, und der Gegner ist dran.</li><li>Wenn dein verdeckter Stapel leer ist und die oberste offene Karte nirgends passt, <b>zieh den ganzen offenen Stapel</b> auf den Platz des verdeckten. Er wird umgedreht, und du spielst weiter. Hätte die oberste Karte gespielt werden können, ist das ein TOUCH.</li><li>Wer zuerst alle Karten los ist, gewinnt.</li>",
+};
+
+const pl = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Gra karciana dla dwóch graczy. Połóżcie telefon na stole między sobą.",
+  optLang: "Język",
+  optTimer: "Limit czasu",
+  optTimerHint: "Wyłącz dla dzieci i początkujących",
+  optSeconds: "Czas na ruch",
+  optAuto: "Automatyczny TOUCH",
+  optAutoHint: "Wyłączony: przeciwnik sam naciska TOUCH! przed swoim pierwszym ruchem",
+  resume: "Wznów",
+  start: "Zacznij grę",
+  newGame: "Nowa gra",
+  rulesTitle: "Zasady",
+  menu: "Menu",
+  touch: "TOUCH!",
+  time: "CZAS!",
+  yourTurn: "Twój ruch",
+  wait: "Czekaj",
+  refillHint: "Przeciągnij tu swój odkryty stos",
+  illegalMine: "Ta karta tu nie pasuje! +1 karta",
+  illegalOpp: "Przeciwnik położył kartę tam, gdzie nie pasuje.",
+  timeoutMine: "Skończył ci się czas! +1 karta",
+  timeoutOpp: "Przeciwnikowi skończył się czas.",
+  missedMine: "Był możliwy ruch! +1 karta",
+  missedOpp: "Przeciwnik dostaje kartę karną.",
+  win: "Wygrana! 🎉",
+  lose: "Przegrana",
+  rules: "<li>Każdy gracz ma 26 kart w <b>zakrytym</b> stosie. Nad nim układa swój <b>odkryty</b> stos.</li><li>Na <b>środku</b> karty idą rosnąco: A, 2, 3 … K, potem znowu A. Kolor nie ma znaczenia.</li><li>Na <b>odkryty stos przeciwnika</b> kładzie się kartę o jeden wyższą lub niższą (5 lub 7 na 6; K lub 2 na A). Tylko środek musi rosnąć. Dopiero gdy pierwszy as leży na środku.</li><li>Najpierw zagraj kartę ze swojego odkrytego stosu: przeciągnij ją na środek albo na stos przeciwnika.</li><li>Gdy odkryta karta nie ma gdzie pójść, <b>naciśnij i przytrzymaj</b> zakryty stos. Karta odwraca się pod palcem i musisz przeciągnąć ją na środek albo na stos przeciwnika.</li><li>Jeśli ta karta nie ma gdzie pójść, puść ją gdziekolwiek, a trafi na twój odkryty stos. Wtedy ruch ma przeciwnik.</li><li><b>TOUCH!</b> Kto przegapi ruch albo położy kartę tam, gdzie nie pasuje, dostaje kartę karną spod stosu przeciwnika. Gra nigdy nie pokazuje, która karta jest następna ani gdzie karta pasuje. Trzeba to wiedzieć samemu.</li><li><b>Każdy musi zagrać.</b> Gdy skończy się czas, dostajesz kartę karną, następna karta odwraca się na twój odkryty stos, a ruch przechodzi na przeciwnika.</li><li>Gdy zakryty stos się skończy, a górna karta odkrytego nie ma gdzie pójść, <b>przeciągnij cały odkryty stos</b> na miejsce zakrytego. Odwraca się rewersem do góry i grasz dalej. Jeśli górną kartę dało się zagrać, to jest TOUCH.</li><li>Wygrywa ten, kto pierwszy pozbędzie się wszystkich kart.</li>",
+};
+
+const it = {
+  docTitle: "Tač – Touch",
+  title: "Tač",
+  sub: "Un gioco di carte per due giocatori. Mettete il telefono sul tavolo tra di voi.",
+  optLang: "Lingua",
+  optTimer: "Limite di tempo",
+  optTimerHint: "Disattivalo per bambini e principianti",
+  optSeconds: "Tempo per mossa",
+  optAuto: "TOUCH automatico",
+  optAutoHint: "Disattivato: l'avversario preme TOUCH! prima della sua prima mossa",
+  resume: "Riprendi",
+  start: "Inizia",
+  newGame: "Nuova partita",
+  rulesTitle: "Regole",
+  menu: "Menu",
+  touch: "TOUCH!",
+  time: "TEMPO!",
+  yourTurn: "Tocca a te",
+  wait: "Aspetta",
+  refillHint: "Trascina qui il tuo mazzo scoperto",
+  illegalMine: "Quella carta non va lì! +1 carta",
+  illegalOpp: "L'avversario ha messo una carta dove non va.",
+  timeoutMine: "Tempo scaduto! +1 carta",
+  timeoutOpp: "Il tempo dell'avversario è scaduto.",
+  missedMine: "Avevi una mossa! +1 carta",
+  missedOpp: "L'avversario riceve una carta di penalità.",
+  win: "Vittoria! 🎉",
+  lose: "Sconfitta",
+  rules: "<li>Ogni giocatore ha 26 carte in un mazzo <b>coperto</b>. Sopra costruisce il suo mazzo <b>scoperto</b>.</li><li>Al <b>centro</b> si sale: A, 2, 3 … K, poi di nuovo A. Il seme non conta.</li><li>Sul <b>mazzo scoperto dell'avversario</b> si mette una carta più alta o più bassa di uno (5 o 7 su un 6; K o 2 su un A). Solo il centro deve salire. Solo dopo che il primo asso è al centro.</li><li>Prima gioca la carta del tuo mazzo scoperto: trascinala al centro o sul mazzo dell'avversario.</li><li>Se la tua carta scoperta non può andare da nessuna parte, <b>tieni premuto</b> il tuo mazzo coperto. La carta si gira sotto il dito e devi trascinarla al centro o sul mazzo dell'avversario.</li><li>Se quella carta non può andare da nessuna parte, lasciala dove vuoi e finisce sul tuo mazzo scoperto. Poi tocca all'avversario.</li><li><b>TOUCH!</b> Chi salta una mossa o mette una carta dove non va riceve una carta di penalità dal fondo del mazzo dell'avversario. Il gioco non mostra mai quale carta viene dopo né dove può andare una carta. Devi saperlo tu.</li><li><b>Tutti devono giocare.</b> Quando il tempo scade, ricevi una carta di penalità, la tua carta successiva viene girata sul tuo mazzo scoperto e tocca all'avversario.</li><li>Quando il mazzo coperto è finito e la carta in cima a quello scoperto non può andare da nessuna parte, <b>trascina tutto il mazzo scoperto</b> al posto di quello coperto. Si gira a faccia in giù e continui a giocare. Se la carta in cima si poteva giocare, è TOUCH.</li><li>Vince chi per primo si libera di tutte le carte.</li>",
+};
+
 // ---------- latinica → ćirilica ----------
 const DIGRAPHS = { Lj: 'Љ', LJ: 'Љ', lj: 'љ', Nj: 'Њ', NJ: 'Њ', nj: 'њ', Dž: 'Џ', DŽ: 'Џ', dž: 'џ' };
 const LETTERS = {
@@ -109,15 +295,37 @@ const STRINGS = {
   sr,
   'sr-Cyrl': Object.fromEntries(Object.entries(sr).map(([k, v]) => [k, toCyrillic(v)])),
   en,
+  de,
+  fr,
+  es,
+  it,
+  pl,
+  nb,
 };
 
-export const LANGS = { sr: 'Srpski', 'sr-Cyrl': 'Српски', en: 'English' };
+export const LANGS = {
+  sr: 'Srpski',
+  'sr-Cyrl': 'Српски',
+  en: 'English',
+  de: 'Deutsch',
+  fr: 'Français',
+  es: 'Español',
+  it: 'Italiano',
+  pl: 'Polski',
+  nb: 'Norsk',
+};
 
-/** Jezik telefona: srpski i susedni jezici → srpski (latinica), sve ostalo → engleski. */
+/** Jezik telefona: srpski i susedni jezici → srpski (latinica), podržani jezici → taj jezik, ostalo → engleski. */
 export function detectLang() {
-  const l = (navigator.language || '').toLowerCase();
-  if (l.startsWith('sr-cyrl')) return 'sr-Cyrl';
-  return /^(sr|hr|bs|sh|cnr|me)\b/.test(l) ? 'sr' : 'en';
+  for (const raw of navigator.languages?.length ? navigator.languages : [navigator.language || '']) {
+    const l = raw.toLowerCase();
+    if (l.startsWith('sr-cyrl')) return 'sr-Cyrl';
+    const base = l.split('-')[0];
+    if (['sr', 'hr', 'bs', 'sh', 'cnr', 'me'].includes(base)) return 'sr';
+    if (['no', 'nb', 'nn'].includes(base)) return 'nb';
+    if (STRINGS[base]) return base;
+  }
+  return 'en';
 }
 
 let lang = 'sr';
