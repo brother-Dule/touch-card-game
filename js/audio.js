@@ -18,6 +18,7 @@ export function setEnabled(v) {
 export function unlock() {
   if (!enabled) return;
   try {
+    if (ctx?.state === 'closed') ctx = null; // sistem je zatvorio zvuk – pravi se nov
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
@@ -33,7 +34,15 @@ export function unlock() {
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     }
-    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    // iPhone: zvuk se pali tek kad se u dodiru stvarno pusti nešto, pa se pušta tišina od jednog uzorka.
+    // Stanje može biti i „interrupted“ (poziv, budilnik, igra u pozadini) – i tada se nastavlja ovde.
+    if (ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
+      const src = ctx.createBufferSource();
+      src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      src.connect(ctx.destination);
+      src.start(0);
+    }
   } catch {
     ctx = null; // pregledač ne podržava Web Audio – igra radi bez zvuka
   }

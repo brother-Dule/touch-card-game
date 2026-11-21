@@ -36,7 +36,10 @@ let busy = false;
 let lastSec = 0; // poslednja sekunda za koju je kucnuo sat
 
 // telefoni puštaju zvuk tek posle dodira – zvuk se „otključava“ na svaki dodir (capture: pre svih drugih)
-window.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
+// iPhone ne prihvata svaki dodir kao dozvolu za zvuk (pointerdown često nije dovoljan), pa se pokušava na više događaja
+for (const type of ['pointerdown', 'touchend', 'click', 'keydown']) {
+  window.addEventListener(type, () => sfx.unlock(), { capture: true });
+}
 
 const ui = createUI({ onAction: act });
 const timer = new TurnTimer({
