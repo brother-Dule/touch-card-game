@@ -210,12 +210,21 @@ export function createUI({ onAction }) {
   }
 
   /** Vruća karta MORA negde da padne: prazan sto ili svoja gomila = tvoja otvorena gomila. */
-  function dropHot(to) {
+  function dropHot(to, speed) {
     const p = state.current;
     // dok je sredina prazna, protivnikova gomila nije mesto za kartu – kao da je puštena bilo gde
     if (to === 'opp' && !state.center.length) to = null;
-    if (to === 'center' || to === 'opp') onAction({ type: 'PLAY', player: p, from: 'flipped', to });
-    else onAction({ type: 'PLAY', player: p, from: 'flipped', to: 'own' });
+    if (to === 'center' || to === 'opp') onAction({ type: 'PLAY', player: p, from: 'flipped', to, speed });
+    else onAction({ type: 'PLAY', player: p, from: 'flipped', to: 'own', speed });
+  }
+
+  /** Brzina prsta pri puštanju (px/ms), iz poslednjih ~100 ms pokreta – za zvuk spuštene karte. */
+  function releaseSpeed(d, e) {
+    const pts = d.trail ?? [];
+    const end = { x: e.clientX, y: e.clientY, t: e.timeStamp };
+    const start = pts.find((p) => end.t - p.t <= 100) ?? pts[pts.length - 1];
+    if (!start || end.t - start.t < 8) return 0;
+    return Math.hypot(end.x - start.x, end.y - start.y) / (end.t - start.t);
   }
 
   // ---------- prevlačenje ----------
@@ -310,6 +319,8 @@ export function createUI({ onAction }) {
 
   window.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.id) return;
+    (drag.trail ??= []).push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+    if (drag.trail.length > 12) drag.trail.shift();
     moveGhost(e.clientX, e.clientY);
   });
 
@@ -322,11 +333,12 @@ export function createUI({ onAction }) {
     if (d.player !== state.current) return render(state); // red se promenio dok je karta bila u ruci
     const pl = state.players[d.player];
     const tap = !cancelled && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 12;
-    if (d.hot) dropHot(to);
+    const speed = releaseSpeed(d, e);
+    if (d.hot) dropHot(to, speed);
     // karta sa otvorene: spuštena na sredinu/protivnika = potez; bilo gde drugde se vraća.
     // Dok je sredina prazna, protivnikova gomila nije potez – karta se samo vrati.
     else if (to === 'center' || (to === 'opp' && state.center.length)) {
-      onAction({ type: 'PLAY', player: d.player, from: 'open', to });
+      onAction({ type: 'PLAY', player: d.player, from: 'open', to, speed });
     }
     // cela otvorena gomila prevučena na praznu zatvorenu = okreće se licem nadole;
     // poslednja karta se ne okreće – dovoljno je da se dodirne i potez je završen

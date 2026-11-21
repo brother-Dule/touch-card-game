@@ -93,54 +93,106 @@ function tone(t0, { freq, freqEnd, dur, gain, type = 'sine', attack = 0.004, fil
   o.stop(t0 + dur + 0.05);
 }
 
+/**
+ * Nasumična vrednost za jedan zvuk, ali nikad preblizu prethodnoj – dva uzastopna zvuka
+ * iste vrste se uvek čuju malo drugačije, pa uho ne uhvati mehaničko ponavljanje.
+ */
+const lastVaried = {};
+function varied(name, lo, hi) {
+  let x = rnd(lo, hi);
+  for (let i = 0; i < 5 && lastVaried[name] !== undefined && Math.abs(x - lastVaried[name]) < (hi - lo) * 0.25; i++) {
+    x = rnd(lo, hi);
+  }
+  lastVaried[name] = x;
+  return x;
+}
+
 // ---------- zvuci ----------
+// Zvuci karata se svaki put malo razlikuju. Signali (sat, zvonce, fanfara, nedozvoljen dodir)
+// su uvek isti, jer ih igrač prepoznaje bez gledanja u ekran.
 
 /** Karta se podiže sa gomile: tiho klizanje. */
 export function pickup() {
   const t = now();
   if (t === null) return;
-  noise(t, { dur: 0.09, freq: 1500, freqEnd: 3800, q: 0.7, gain: 0.18, attack: 0.03 });
+  const v = varied('pickup', 0.85, 1.15);
+  noise(t, {
+    dur: rnd(0.075, 0.11),
+    freq: 1500 * v,
+    freqEnd: 3800 * rnd(0.85, 1.15),
+    q: rnd(0.55, 0.9),
+    gain: 0.18 * rnd(0.8, 1.1),
+    attack: rnd(0.02, 0.04),
+  });
 }
 
-/** Karta pada na gomilu: kratko klizanje, pucketanje papira i tup udarac o sto. */
-export function place(delay = 0) {
+/**
+ * Karta pada na gomilu: kratko klizanje, pucketanje papira i tup udarac o sto.
+ * pile  – koliko karata je na gomili posle spuštanja: debela gomila zvuči tuplje i dublje.
+ * speed – brzina prsta pri puštanju (px/ms): bačena karta zvuči oštrije od polako spuštene.
+ */
+export function place(delay = 0, { pile = 1, speed = 0.6 } = {}) {
   const t = now(delay);
   if (t === null) return;
-  const v = rnd(0.85, 1.15); // svaka karta zvuči malo drugačije
-  noise(t, { dur: 0.05, freq: 2500 * v, freqEnd: 1200, q: 0.8, gain: 0.15, attack: 0.015 });
-  noise(t + 0.04, { dur: 0.035, type: 'highpass', freq: 2200 * v, gain: 0.55 });
-  tone(t + 0.04, { freq: 150 * v, freqEnd: 60, dur: 0.07, gain: 0.35 });
+  const v = varied('place', 0.88, 1.12);
+  const vol = rnd(0.85, 1.1);
+  const depth = Math.min(1, pile / 30);
+  const sharp = Math.min(1, speed / 2);
+  const slide = rnd(0.04, 0.065) * (1.2 - 0.5 * sharp);
+  noise(t, { dur: slide, freq: 2500 * v, freqEnd: 1200 * rnd(0.85, 1.15), q: rnd(0.6, 1), gain: 0.15 * vol, attack: 0.015 });
+  const hit = t + slide * rnd(0.7, 0.9);
+  noise(hit, {
+    dur: rnd(0.028, 0.042),
+    type: 'highpass',
+    freq: 2200 * v * (1 - 0.25 * depth) * (0.85 + 0.3 * sharp),
+    gain: (0.4 + 0.25 * sharp) * vol,
+  });
+  tone(hit, {
+    freq: 150 * v * (1 - 0.35 * depth),
+    freqEnd: 60 * (1 - 0.2 * depth),
+    dur: 0.07 + 0.04 * depth,
+    gain: (0.3 + 0.15 * depth) * vol * (0.8 + 0.3 * sharp),
+  });
 }
 
 /** Karta se okreće sa zatvorene gomile: oštro „flip“. */
 export function flip(delay = 0) {
   const t = now(delay);
   if (t === null) return;
-  noise(t, { dur: 0.06, freq: 900, freqEnd: 4200, q: 1.2, gain: 0.22, attack: 0.02 });
-  noise(t + 0.055, { dur: 0.025, freq: 3200 * rnd(0.9, 1.1), q: 0.9, gain: 0.5 });
+  const v = varied('flip', 0.88, 1.12);
+  const swish = rnd(0.05, 0.07);
+  noise(t, { dur: swish, freq: 900 * v, freqEnd: 4200 * rnd(0.85, 1.1), q: rnd(1, 1.4), gain: 0.22 * rnd(0.85, 1.1), attack: 0.02 });
+  noise(t + swish * rnd(0.85, 0.95), { dur: rnd(0.02, 0.03), freq: 3200 * v, q: rnd(0.7, 1.1), gain: 0.5 * rnd(0.85, 1.1) });
 }
 
-/** Cela gomila se okreće i poravnava: niz brzih pucketanja pa udarac. */
-export function recycle(delay = 0) {
+/** Cela gomila se okreće i poravnava: niz brzih pucketanja pa udarac (deblja gomila = duži niz, tuplji udarac). */
+export function recycle(delay = 0, { pile = 10 } = {}) {
   const t = now(delay);
   if (t === null) return;
-  for (let i = 0; i < 10; i++) {
-    noise(t + i * 0.022 + rnd(0, 0.008), { dur: 0.018, freq: rnd(2500, 4500), q: 1.5, gain: rnd(0.15, 0.3) });
+  const depth = Math.min(1, pile / 30);
+  const n = Math.round(7 + 6 * depth + rnd(-1, 1));
+  const gap = rnd(0.018, 0.026);
+  for (let i = 0; i < n; i++) {
+    noise(t + i * gap + rnd(0, 0.008), { dur: 0.018, freq: rnd(2500, 4500), q: 1.5, gain: rnd(0.15, 0.3) });
   }
-  noise(t + 0.25, { dur: 0.06, type: 'lowpass', freq: 1400, gain: 0.45 });
-  tone(t + 0.25, { freq: 120, freqEnd: 55, dur: 0.09, gain: 0.4 });
+  const end = t + n * gap + 0.03;
+  noise(end, { dur: 0.06, type: 'lowpass', freq: 1400 * (1 - 0.3 * depth), gain: 0.45 * rnd(0.85, 1.1) });
+  tone(end, { freq: 120 * rnd(0.9, 1.1) * (1 - 0.25 * depth), freqEnd: 55, dur: 0.09, gain: 0.4 });
 }
 
 /** Mešanje i deljenje na početku partije. */
 export function shuffle() {
   const t = now();
   if (t === null) return;
-  for (let i = 0; i < 26; i++) {
-    const x = i / 26;
-    noise(t + x * 0.6 + rnd(0, 0.01), { dur: 0.02, freq: rnd(2000, 5000), q: 1.4, gain: 0.12 + 0.18 * Math.sin(x * Math.PI) });
+  const n = Math.round(rnd(23, 30));
+  const len = rnd(0.5, 0.7);
+  for (let i = 0; i < n; i++) {
+    const x = i / n;
+    noise(t + x * len + rnd(0, 0.01), { dur: 0.02, freq: rnd(2000, 5000), q: 1.4, gain: 0.12 + 0.18 * Math.sin(x * Math.PI) });
   }
-  noise(t + 0.66, { dur: 0.07, type: 'lowpass', freq: 1200, gain: 0.5 });
-  tone(t + 0.66, { freq: 110, freqEnd: 50, dur: 0.1, gain: 0.45 });
+  const end = t + len + 0.06;
+  noise(end, { dur: 0.07, type: 'lowpass', freq: 1200 * rnd(0.85, 1.15), gain: 0.5 });
+  tone(end, { freq: 110 * rnd(0.9, 1.1), freqEnd: 50, dur: 0.1, gain: 0.45 });
 }
 
 /** Nevalidan dodir (npr. dok traje poruka TAČ): tihi tupi kucaj. */
@@ -151,13 +203,15 @@ export function invalid() {
   tone(t, { freq: 180, freqEnd: 120, dur: 0.06, gain: 0.15 });
 }
 
-/** TAČ! – dlan udara o sto, pa kaznena karta klizne do prekršioca. */
+/** TAČ! – dlan udara o sto, pa kaznena karta klizne do prekršioca. Varijacija je mala: zvuk mora uvek da se prepozna. */
 export function slap() {
   const t = now();
   if (t === null) return;
-  tone(t, { freq: 130, freqEnd: 42, dur: 0.22, gain: 0.95 });
-  noise(t, { dur: 0.14, type: 'lowpass', freq: 1800, freqEnd: 400, gain: 0.9 });
-  noise(t, { dur: 0.03, type: 'highpass', freq: 2000, gain: 0.6 });
+  const v = varied('slap', 0.96, 1.04);
+  const vol = rnd(0.93, 1.03);
+  tone(t, { freq: 130 * v, freqEnd: 42, dur: 0.22, gain: 0.95 * vol });
+  noise(t, { dur: rnd(0.13, 0.15), type: 'lowpass', freq: 1800 * v, freqEnd: 400, gain: 0.9 * vol });
+  noise(t, { dur: 0.03, type: 'highpass', freq: 2000 * v, gain: 0.6 * vol });
   place(0.55);
 }
 

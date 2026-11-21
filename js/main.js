@@ -88,7 +88,7 @@ function act(action) {
 
   const touch = events.find((e) => e.type === 'touch');
   const win = events.find((e) => e.type === 'win');
-  playSound(events, touch);
+  playSound(events, touch, action);
 
   if (touch) {
     vibrate([90, 60, 90]);
@@ -122,13 +122,18 @@ function finish(winner) {
 }
 
 /** Jedan zvuk po akciji – onaj koji najbolje opisuje šta se desilo na stolu. */
-function playSound(events, touch) {
+function playSound(events, touch, action) {
   const has = (type) => events.some((e) => e.type === type);
+  const move = events.find((e) => e.type === 'move');
+  const speed = action.speed; // brzina prsta pri puštanju karte (šalje je ui.js)
   if (touch) touch.reason === 'timeout' ? sfx.bell() : sfx.slap();
-  else if (has('move')) sfx.place();
-  else if (has('recycle')) sfx.recycle();
+  else if (move) {
+    const pile = move.to === 'center' ? state.center : state.players[1 - move.player].open;
+    sfx.place(0, { pile: pile.length, speed });
+  } else if (has('recycle')) sfx.recycle(0, { pile: state.players[action.player].closed.length });
   else if (has('flip')) sfx.flip();
-  else if (has('turn')) sfx.place(); // okrenuta karta pada na svoju otvorenu gomilu
+  // okrenuta karta pada na svoju otvorenu gomilu
+  else if (has('turn')) sfx.place(0, { pile: state.players[action.player].open.length, speed });
 }
 
 // ---------- meni ----------
