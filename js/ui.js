@@ -7,6 +7,7 @@
 // Karta spuštena tamo gde ne ide = TAČ.
 import { RANKS, SUITS, isRed, sourceCard } from './engine.js';
 import { t } from './i18n.js';
+import * as sfx from './audio.js';
 
 const TIME_COLORS = [
   [0.5, [76, 175, 80]],
@@ -250,6 +251,7 @@ export function createUI({ onAction }) {
       drag.src = slot.querySelector('.card');
       drag.src?.classList.add('dragging-src');
       drag.ghost = makeGhost(sourceCard(state, p, 'open'));
+      sfx.pickup();
       moveGhost(e.clientX, e.clientY);
     }
   });

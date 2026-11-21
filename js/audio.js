@@ -1,0 +1,192 @@
+// Zvučni efekti, sintetizovani Web Audio API-jem: nema audio fajlova, sve radi i bez interneta.
+// Zvuk karte = kratak šum kroz filter (šuškanje papira) + tup udarac (karta pada na sto).
+// Telefoni puštaju zvuk tek posle prvog dodira, zato main.js zove unlock() na svaki dodir.
+
+let ctx = null;
+let out = null;
+let noiseBuf = null;
+let enabled = true;
+
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+export function setEnabled(v) {
+  enabled = v;
+  if (!v && ctx?.state === 'running') ctx.suspend().catch(() => {});
+  if (v && ctx) unlock(); // uključeno prekidačem u meniju – to je dodir, pa zvuk sme odmah da krene
+}
+
+export function unlock() {
+  if (!enabled) return;
+  try {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = new AC();
+      // kompresor drži glasne zvukove (TAČ, fanfara) pod kontrolom i izjednačava jačinu
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.ratio.value = 4;
+      out = ctx.createGain();
+      out.gain.value = 0.9;
+      out.connect(comp).connect(ctx.destination);
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+  } catch {
+    ctx = null; // pregledač ne podržava Web Audio – igra radi bez zvuka
+  }
+}
+
+/** Vreme za zakazivanje zvuka, ili null ako zvuk ne može da se pusti. */
+function now(delay = 0) {
+  if (!enabled || !ctx || ctx.state !== 'running') return null;
+  return ctx.currentTime + delay;
+}
+
+function envelope(t0, peak, attack, dur) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  return g;
+}
+
+/** Šum kroz filter: šuškanje, pucketanje, udarac dlana. */
+function noise(t0, { dur, type = 'bandpass', freq, freqEnd, q = 1, gain, attack = 0.002 }) {
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuf;
+  const f = ctx.createBiquadFilter();
+  f.type = type;
+  f.Q.value = q;
+  f.frequency.setValueAtTime(freq, t0);
+  if (freqEnd) f.frequency.exponentialRampToValueAtTime(freqEnd, t0 + dur);
+  src.connect(f).connect(envelope(t0, gain, attack, dur)).connect(out);
+  src.start(t0, rnd(0, 0.8), dur + 0.05);
+}
+
+/** Ton: tup udarac (sinus koji pada), zvonce, fanfara. */
+function tone(t0, { freq, freqEnd, dur, gain, type = 'sine', attack = 0.004, filter }) {
+  const o = ctx.createOscillator();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t0);
+  if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, t0 + dur);
+  let node = o;
+  if (filter) {
+    const f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = filter;
+    node = o.connect(f);
+  }
+  node.connect(envelope(t0, gain, attack, dur)).connect(out);
+  o.start(t0);
+  o.stop(t0 + dur + 0.05);
+}
+
+// ---------- zvuci ----------
+
+/** Karta se podiže sa gomile: tiho klizanje. */
+export function pickup() {
+  const t = now();
+  if (t === null) return;
+  noise(t, { dur: 0.09, freq: 1500, freqEnd: 3800, q: 0.7, gain: 0.18, attack: 0.03 });
+}
+
+/** Karta pada na gomilu: kratko klizanje, pucketanje papira i tup udarac o sto. */
+export function place(delay = 0) {
+  const t = now(delay);
+  if (t === null) return;
+  const v = rnd(0.85, 1.15); // svaka karta zvuči malo drugačije
+  noise(t, { dur: 0.05, freq: 2500 * v, freqEnd: 1200, q: 0.8, gain: 0.15, attack: 0.015 });
+  noise(t + 0.04, { dur: 0.035, type: 'highpass', freq: 2200 * v, gain: 0.55 });
+  tone(t + 0.04, { freq: 150 * v, freqEnd: 60, dur: 0.07, gain: 0.35 });
+}
+
+/** Karta se okreće sa zatvorene gomile: oštro „flip“. */
+export function flip(delay = 0) {
+  const t = now(delay);
+  if (t === null) return;
+  noise(t, { dur: 0.06, freq: 900, freqEnd: 4200, q: 1.2, gain: 0.22, attack: 0.02 });
+  noise(t + 0.055, { dur: 0.025, freq: 3200 * rnd(0.9, 1.1), q: 0.9, gain: 0.5 });
+}
+
+/** Cela gomila se okreće i poravnava: niz brzih pucketanja pa udarac. */
+export function recycle(delay = 0) {
+  const t = now(delay);
+  if (t === null) return;
+  for (let i = 0; i < 10; i++) {
+    noise(t + i * 0.022 + rnd(0, 0.008), { dur: 0.018, freq: rnd(2500, 4500), q: 1.5, gain: rnd(0.15, 0.3) });
+  }
+  noise(t + 0.25, { dur: 0.06, type: 'lowpass', freq: 1400, gain: 0.45 });
+  tone(t + 0.25, { freq: 120, freqEnd: 55, dur: 0.09, gain: 0.4 });
+}
+
+/** Mešanje i deljenje na početku partije. */
+export function shuffle() {
+  const t = now();
+  if (t === null) return;
+  for (let i = 0; i < 26; i++) {
+    const x = i / 26;
+    noise(t + x * 0.6 + rnd(0, 0.01), { dur: 0.02, freq: rnd(2000, 5000), q: 1.4, gain: 0.12 + 0.18 * Math.sin(x * Math.PI) });
+  }
+  noise(t + 0.66, { dur: 0.07, type: 'lowpass', freq: 1200, gain: 0.5 });
+  tone(t + 0.66, { freq: 110, freqEnd: 50, dur: 0.1, gain: 0.45 });
+}
+
+/** Nevalidan dodir (npr. dok traje poruka TAČ): tihi tupi kucaj. */
+export function invalid() {
+  const t = now();
+  if (t === null) return;
+  noise(t, { dur: 0.05, type: 'lowpass', freq: 700, gain: 0.3 });
+  tone(t, { freq: 180, freqEnd: 120, dur: 0.06, gain: 0.15 });
+}
+
+/** TAČ! – dlan udara o sto, pa kaznena karta klizne do prekršioca. */
+export function slap() {
+  const t = now();
+  if (t === null) return;
+  tone(t, { freq: 130, freqEnd: 42, dur: 0.22, gain: 0.95 });
+  noise(t, { dur: 0.14, type: 'lowpass', freq: 1800, freqEnd: 400, gain: 0.9 });
+  noise(t, { dur: 0.03, type: 'highpass', freq: 2000, gain: 0.6 });
+  place(0.55);
+}
+
+/** VREME! – zvonce na stolu, pa kaznena karta. */
+export function bell() {
+  const t = now();
+  if (t === null) return;
+  const f = 1320;
+  tone(t, { freq: f, dur: 1.3, gain: 0.35, attack: 0.002 });
+  tone(t, { freq: f * 2.76, dur: 0.5, gain: 0.12, attack: 0.002 });
+  tone(t, { freq: f * 5.4, dur: 0.2, gain: 0.05, attack: 0.002 });
+  noise(t, { dur: 0.015, type: 'highpass', freq: 5000, gain: 0.3 });
+  place(0.55);
+}
+
+/** Kucanje sata u poslednjim sekundama; poslednja sekunda je viša. */
+export function tick(last = false) {
+  const t = now();
+  if (t === null) return;
+  const f = last ? 1600 : 1150;
+  tone(t, { freq: f, freqEnd: f * 0.8, dur: 0.045, gain: 0.25, attack: 0.001 });
+  noise(t, { dur: 0.02, freq: f * 2, q: 3, gain: 0.2, attack: 0.001 });
+}
+
+/** Pobeda: kratka fanfara (limeni duvači). */
+export function fanfare() {
+  const t = now();
+  if (t === null) return;
+  const notes = [
+    [523.25, 0, 0.14],
+    [659.25, 0.13, 0.14],
+    [783.99, 0.26, 0.14],
+    [1046.5, 0.39, 0.9],
+  ];
+  for (const [freq, at, dur] of notes) {
+    for (const det of [0.997, 1.003]) {
+      tone(t + at, { freq: freq * det, dur, gain: 0.13, type: 'sawtooth', attack: 0.02, filter: freq * 4 });
+    }
+    tone(t + at, { freq: freq / 2, dur, gain: 0.08, type: 'triangle', attack: 0.02 });
+  }
+}

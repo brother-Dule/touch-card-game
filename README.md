@@ -12,6 +12,7 @@ Pravila su sa [igresakartama.com/tac](https://igresakartama.com/tac/), prilagođ
 - **TAČ**: ko propusti potez ili spusti kartu tamo gde ne ide dobija kartu sa dna protivnikove zatvorene gomile. Igra namerno ne pokazuje koja karta je sledeća ni gde karta može da ide.
 
 ## Podešavanja
+- **Zvuk**: uključen/isključen. Zvuci karata (podizanje, spuštanje, okretanje, okretanje cele gomile, mešanje na početku), udarac dlanom za TAČ, zvonce kad istekne vreme, kucanje sata u poslednje 3 sekunde i fanfara za pobedu. Svi zvuci se sintetizuju u kodu (Web Audio), bez audio fajlova.
 - **Vremensko ograničenje**: uključeno/isključeno, a vreme za potez je 3, 5, 8 ili 10 s. Gradijent kreće od ivice ekrana igrača na potezu ka protivniku i povlači se kako vreme ističe, menjajući boju od zelene preko žute do crvene. Svako mora da igra: kad vreme istekne, igrač dobija kaznenu kartu, sledeća karta iz zatvorene gomile ide na njegovu otvorenu (aplikacija je nikad ne igra u njegovu korist) i red prelazi na protivnika.
 - **Automatski TAČ**: kad je isključen, aplikacija ne prijavljuje prekršaj sama. Svaki igrač ima dugme **TAČ!** na svom kraju ekrana, uvek aktivno. Pritisak kažnjava samo protivnika, i to samo ako je napravio prekršaj koji još nije prijavljen: tokom njegovog poteza ili dok ti ne odigraš svoj prvi potez posle njega. Isti prekršaj se prijavljuje samo jednom, a pritisak bez prekršaja ne radi ništa.
 
@@ -33,6 +34,7 @@ Zatim otvori http://localhost:8765. Testovi logike su na http://localhost:8765/t
 - `js/engine.js`: pravila igre, bez DOM-a (spremno za online verziju)
 - `js/ui.js`: prikaz stola, dodir i prevlačenje karata
 - `js/timer.js`: tajmer poteza
+- `js/audio.js`: zvučni efekti
 - `js/main.js`: povezuje delove, meni i podešavanja
 - `js/i18n.js`: prevodi
 - `tests/`: testovi pravila (u pregledaču ili sa `node tests/engine.test.js`)
