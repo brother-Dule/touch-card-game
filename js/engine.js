@@ -165,6 +165,7 @@ const invalid = (state, reason) => ({ state, events: [{ type: 'invalid', reason 
  * Akcije:
  *  { type: 'FLIP', player }                     – dodir na svoju zatvorenu gomilu
  *  { type: 'RECYCLE', player }                  – prazna zatvorena: otvorena gomila se prevlači do igrača i okreće
+ *                                                 (samo jedna karta na otvorenoj: dodir završava potez)
  *  { type: 'PLAY', player, from, to }           – from: 'open'|'flipped', to: 'center'|'opp'|'own'
  *                                                 (karta na mesto gde ne ide = TAČ)
  *  { type: 'TIMEOUT', player }                  – isteklo vreme: kazna + okrenuta karta na svoju otvorenu, kraj poteza
@@ -218,12 +219,20 @@ export function apply(prev, action) {
     case 'RECYCLE': {
       // Otvorena gomila se prevlači do igrača i okreće licem nadole (bez mešanja):
       // njena donja karta postaje vrh nove zatvorene gomile. Potez se nastavlja.
+      // Ako je na otvorenoj samo jedna karta, potez se završava (vidi dole).
       if (s.flipped) return invalid(prev, 'already-flipped');
       const pl = s.players[p];
       if (pl.closed.length) return invalid(prev, 'closed-not-empty');
       if (!pl.open.length) return invalid(prev, 'no-cards');
       // karta sa vrha otvorene je mogla da se odigra → TAČ
       if (legalMoves(s, p).length && violation(s, p, now, events, 'recycle')) break;
+      // poslednja karta: okretanje nema svrhe (ista karta bi se odmah ponovo okrenula),
+      // pa dodir samo završava potez, a karta ostaje otvorena
+      if (pl.open.length === 1) {
+        events.push({ type: 'pass', player: p });
+        endTurn(s, events);
+        break;
+      }
       pl.closed = pl.open.reverse();
       pl.open = [];
       events.push({ type: 'recycle', player: p });
@@ -234,6 +243,14 @@ export function apply(prev, action) {
       const { from, to } = action;
       const card = sourceCard(s, p, from);
       if (!card) return invalid(prev, 'no-card');
+      // dok je sredina prazna, na protivnika se ne igra – to nije prekršaj, potez jednostavno ne postoji
+      if (to === 'opp' && !s.center.length) return invalid(prev, 'center-empty');
+      // sredina ima prednost: karta koja može na sredinu ne sme na protivnika
+      if (to === 'opp' && canPlayCenter(s, card)) {
+        if (violation(s, p, now, events, 'center')) break;
+        if (from === 'flipped') endTurn(s, events);
+        break;
+      }
       if ((to === 'center' && !canPlayCenter(s, card)) || (to === 'opp' && !canPlayOnOpponent(s, p, card))) {
         // Karta spuštena tamo gde ne ide – i to je TAČ (igrač mora sam da zna šta ide gde)
         if (violation(s, p, now, events, 'illegal')) break;

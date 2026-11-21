@@ -38,14 +38,23 @@ export function createUI({ onAction }) {
         <div class="pile-wrap">
           <div class="slot closed" data-slot="closed" data-player="${p}"></div>
           <span class="badge n-closed"></span>
+          <button class="recycle-btn" type="button" hidden></button>
         </div>
+      </div>
+      <div class="side">
+        <span class="status"></span>
       </div>
       <div class="aside">
         <span class="secs"></span>
-        <span class="status"></span>
         <button class="touch-btn" type="button" data-i18n="touch">TAČ!</button>
       </div>`;
     const q = (s) => el.querySelector(s);
+    // okretanje otvorene gomile dugmetom (isto kao prevlačenje gomile na mesto zatvorene)
+    q('.recycle-btn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!locked && !drag && state && state.winner === null && state.current === p) onAction({ type: 'RECYCLE', player: p });
+    });
     // pointerdown umesto click: na telefonu click često ne stigne dok drugi prst drži kartu,
     // a TAČ mora da se uhvati baš dok protivnik drži kartu sa zatvorene gomile
     q('.touch-btn').addEventListener('pointerdown', (e) => {
@@ -62,6 +71,7 @@ export function createUI({ onAction }) {
       nOpen: q('.n-open'),
       status: q('.status'),
       secs: q('.secs'),
+      recycle: q('.recycle-btn'),
     };
   }
 
@@ -83,6 +93,45 @@ export function createUI({ onAction }) {
     const out = [];
     for (let i = 1; i < layers; i++) out.push(`0 ${i * 2}px 0 ${i % 2 ? '#cfc8b8' : '#f2eee4'}`);
     return out.join(', ') || '0 0 0 transparent';
+  }
+
+  /** Mali „nered“ za svaku kartu: isti za istu kartu, da se gomila ne trese pri svakom crtanju. */
+  function tilt(id) {
+    const r = (k) => {
+      const x = Math.sin(id * k) * 43758.5453;
+      return x - Math.floor(x) - 0.5; // -0.5 … 0.5
+    };
+    return { rot: r(12.9898) * 10, dx: r(78.233) * 7, dy: r(39.425) * 7 };
+  }
+
+  /**
+   * Otvorena gomila: vidi se nekoliko gornjih karata, blago nakrivljenih kao kad se karte bacaju rukom.
+   * Dok je gornja karta u ruci, vidi se karta ispod nje.
+   */
+  function renderOpen(slot, pile, liftTop) {
+    const cards = liftTop ? pile.slice(0, -1) : pile;
+    const shown = cards.slice(-3);
+    const topCard = shown[shown.length - 1];
+    const key = `o:${shown.map((c) => c.id).join(',')}:${cards.length}`;
+    if (slot.dataset.key === key) return;
+    const prevId = slot.dataset.cardId;
+    const lifted = slot.dataset.lifted === '1';
+    slot.dataset.key = key;
+    slot.dataset.cardId = topCard ? topCard.id : '';
+    slot.dataset.lifted = liftTop ? '1' : '';
+    slot.replaceChildren();
+    slot.classList.toggle('has-card', !!topCard);
+    shown.forEach((card, i) => {
+      const el = cardEl(card, false);
+      const t = tilt(card.id);
+      el.style.setProperty('--tilt', `${t.rot.toFixed(1)}deg`);
+      el.style.setProperty('--dx', `${t.dx.toFixed(1)}px`);
+      el.style.setProperty('--dy', `${t.dy.toFixed(1)}px`);
+      if (i === 0) el.style.setProperty('--stack', stackShadow(cards.length - shown.length + 1));
+      // nova karta „padne“ na gomilu; karta vraćena iz ruke ili otkrivena ispod ne skače
+      if (card === topCard && String(card.id) !== prevId && !liftTop && !lifted) el.classList.add('pop');
+      slot.append(el);
+    });
   }
 
   function renderSlot(slot, card, { faceDown = false, count = 1 } = {}) {
@@ -115,14 +164,17 @@ export function createUI({ onAction }) {
       const loose = active && s.flipped && !drag?.hot;
       if (loose) renderSlot(z.closed, s.flipped);
       else renderSlot(z.closed, pl.closed.length ? {} : null, { faceDown: true, count: pl.closed.length });
-      renderSlot(z.open, pl.open[pl.open.length - 1] ?? null, { count: pl.open.length });
+      const lifting = drag && !drag.hot && drag.player === p; // gornja karta otvorene je u ruci
+      renderOpen(z.open, pl.open, lifting);
       z.closed.classList.toggle('can-flip', active && !s.flipped);
-      // prazna zatvorena: pokaži gde se prevlači otvorena gomila
-      z.closed.classList.toggle('refill', active && !s.flipped && !pl.closed.length && pl.open.length > 0);
+      // prazna zatvorena: dugme za okretanje otvorene gomile (jedna karta se ne okreće – samo „Dalje“)
+      const canRecycle = active && !s.flipped && !pl.closed.length && pl.open.length > 0;
+      z.closed.classList.toggle('refill', canRecycle);
+      z.recycle.hidden = !canRecycle;
+      z.recycle.textContent = pl.open.length === 1 ? t('passBtn') : `↻ ${t('recycleBtn')}`;
       z.nClosed.textContent = pl.closed.length + (active && s.flipped ? 1 : 0);
-      z.nOpen.textContent = pl.open.length;
+      z.nOpen.textContent = pl.open.length - (lifting ? 1 : 0);
       z.status.textContent = active ? t('yourTurn') : t('wait');
-      z.closed.dataset.hint = t('refillHint');
     }
     const top = s.center[s.center.length - 1] ?? null;
     renderSlot(centerEl, top, { count: s.center.length });
@@ -160,6 +212,8 @@ export function createUI({ onAction }) {
   /** Vruća karta MORA negde da padne: prazan sto ili svoja gomila = tvoja otvorena gomila. */
   function dropHot(to) {
     const p = state.current;
+    // dok je sredina prazna, protivnikova gomila nije mesto za kartu – kao da je puštena bilo gde
+    if (to === 'opp' && !state.center.length) to = null;
     if (to === 'center' || to === 'opp') onAction({ type: 'PLAY', player: p, from: 'flipped', to });
     else onAction({ type: 'PLAY', player: p, from: 'flipped', to: 'own' });
   }
@@ -220,7 +274,6 @@ export function createUI({ onAction }) {
     if (!drag) return;
     drag.ghost?.remove();
     drag.over?.classList.remove('hover');
-    drag.src?.classList.remove('dragging-src');
     drag = null;
   }
 
@@ -246,12 +299,11 @@ export function createUI({ onAction }) {
     }
 
     if (kind === 'open' && sourceCard(state, p, 'open')) {
-      // karta se „podiže“ odmah na dodir (uvećana i nagnuta), isto kao okrenuta karta
-      drag = { id: e.pointerId, player: p, hot: false, moved: true, over: null };
-      drag.src = slot.querySelector('.card');
-      drag.src?.classList.add('dragging-src');
+      // karta se „podiže“ odmah na dodir (uvećana i nagnuta), a na gomili se vidi karta ispod
+      drag = { id: e.pointerId, player: p, hot: false, moved: true, over: null, x0: e.clientX, y0: e.clientY };
       drag.ghost = makeGhost(sourceCard(state, p, 'open'));
       sfx.pickup();
+      render(state);
       moveGhost(e.clientX, e.clientY);
     }
   });
@@ -267,16 +319,21 @@ export function createUI({ onAction }) {
     if (!cancelled && d.ghost) moveGhost(e.clientX, e.clientY); // poslednji položaj karte
     const to = cancelled || !d.ghost ? null : targetOf(dropSlot());
     cancelDrag();
-    if (d.player !== state.current) return; // red se promenio dok je karta bila u ruci
+    if (d.player !== state.current) return render(state); // red se promenio dok je karta bila u ruci
+    const pl = state.players[d.player];
+    const tap = !cancelled && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 12;
     if (d.hot) dropHot(to);
-    // karta sa otvorene: spuštena na sredinu/protivnika = potez; bilo gde drugde se vraća
-    else if (d.moved && (to === 'center' || to === 'opp')) {
+    // karta sa otvorene: spuštena na sredinu/protivnika = potez; bilo gde drugde se vraća.
+    // Dok je sredina prazna, protivnikova gomila nije potez – karta se samo vrati.
+    else if (to === 'center' || (to === 'opp' && state.center.length)) {
       onAction({ type: 'PLAY', player: d.player, from: 'open', to });
     }
-    // cela otvorena gomila prevučena na praznu zatvorenu = okreće se licem nadole
-    else if (d.moved && to === 'closed' && !state.players[d.player].closed.length) {
+    // cela otvorena gomila prevučena na praznu zatvorenu = okreće se licem nadole;
+    // poslednja karta se ne okreće – dovoljno je da se dodirne i potez je završen
+    else if (!pl.closed.length && (to === 'closed' || (tap && pl.open.length === 1))) {
       onAction({ type: 'RECYCLE', player: d.player });
     }
+    render(state); // karta vraćena na gomilu
   }
   window.addEventListener('pointerup', (e) => endDrag(e, false));
   window.addEventListener('pointercancel', (e) => endDrag(e, true));
@@ -288,7 +345,7 @@ export function createUI({ onAction }) {
     const why = evt.violation ?? evt.reason; // ručni TAČ nosi razlog prvobitnog prekršaja
     const text = (p) => {
       const mine = p === evt.offender;
-      const kind = why === 'illegal' || why === 'timeout' ? why : 'missed';
+      const kind = ['illegal', 'timeout', 'center'].includes(why) ? why : 'missed';
       return t(kind + (mine ? 'Mine' : 'Opp'));
     };
     touchOverlay.querySelector('.big').textContent = evt.reason === 'timeout' ? t('time') : t('touch');

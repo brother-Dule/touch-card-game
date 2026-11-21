@@ -84,12 +84,40 @@ test('AUTO TAČ: propuštena 7 na protivnikovu 6', () => {
 test('pre prve karte na sredini nema igranja na protivnika', () => {
   const s = make({ center: [], p1: { open: [6] }, p0: { open: [5] }, flipped: 5 });
   eq(legalMoves(s), []);
+  // potez ne postoji, ali nije ni prekršaj: nema TAČ-a
   const r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
-  eq(r.events[0].reason, 'illegal');
+  eq(r.events, [{ type: 'invalid', reason: 'center-empty' }]);
   eq(ranks(r.state.players[1].open), [6]); // karta NIJE stavljena na protivnika
-  eq(apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'opp' }).events[0].reason, 'illegal');
+  eq(apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'opp' }).events, [{ type: 'invalid', reason: 'center-empty' }]);
+  // ni 4 na protivnikovu 3 dok je sredina prazna
+  const s2 = make({ center: [], p0: { open: [4] }, p1: { open: [3] } });
+  eq(apply(s2, { type: 'PLAY', player: 0, from: 'open', to: 'opp' }).events[0].reason, 'center-empty');
   // a pošto potez nije postojao, stavljanje na svoju gomilu nije TAČ
   eq(types(apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'own' }).events), ['turn']);
+});
+
+test('AUTO TAČ: karta koja može na sredinu stavljena na protivnika', () => {
+  // 5 ide i na sredinu (4) i na protivnikovu 6 – sredina ima prednost
+  let s = make({ center: [4], p0: { open: [5] }, p1: { open: [6], closed: [2, 3] } });
+  let r = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'opp' });
+  eq(types(r.events), ['touch', 'turn']);
+  eq(r.events[0].reason, 'center');
+  eq(ranks(r.state.players[1].open), [6]); // karta nije stavljena na protivnika
+  eq(ranks(r.state.players[0].open), [5]);
+  s = make({ center: [4], p1: { open: [6], closed: [2, 3] }, flipped: 5 });
+  r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
+  eq(r.events[0].reason, 'center');
+  eq(ranks(r.state.players[0].open), [5]); // okrenuta karta ide na svoju otvorenu
+  // ista karta na sredinu je u redu
+  eq(types(apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'center' }).events), ['move']);
+});
+
+test('RUČNI TAČ: karta stavljena na protivnika umesto na sredinu se pamti', () => {
+  const s = make({ center: [4], p1: { open: [6] }, flipped: 5, autoTouch: false });
+  const r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
+  eq(r.state.lastViolation.reason, 'center');
+  eq(r.state.current, 1);
+  eq(apply(r.state, { type: 'CALL_TOUCH', player: 1 }).events[0].violation, 'center');
 });
 
 test('AUTO TAČ: karta sa otvorene spuštena gde ne ide', () => {
@@ -216,6 +244,20 @@ test('RECYCLE: otvorena gomila se okreće, dno postaje vrh, potez se nastavlja',
   eq(r.state.players[0].open.length, 0);
   r = apply(r.state, { type: 'FLIP', player: 0 });
   eq(r.state.flipped.r, 7); // prva bačena karta je sada na vrhu
+});
+
+test('RECYCLE sa jednom kartom: karta se ne okreće, potez se završava', () => {
+  const s = make({ center: [1], p0: { closed: [], open: [9] } });
+  const r = apply(s, { type: 'RECYCLE', player: 0 });
+  eq(types(r.events), ['pass', 'turn']);
+  eq(ranks(r.state.players[0].open), [9]);
+  eq(r.state.players[0].closed.length, 0);
+  eq(r.state.current, 1);
+});
+
+test('AUTO TAČ: RECYCLE sa jednom kartom koja je imala potez', () => {
+  const s = make({ center: [8], p0: { closed: [], open: [9] }, p1: { closed: [2, 3] } });
+  eq(types(apply(s, { type: 'RECYCLE', player: 0 }).events), ['touch', 'turn']);
 });
 
 test('RECYCLE nije dozvoljen dok zatvorena ima karata', () => {

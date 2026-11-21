@@ -4,11 +4,12 @@ Mobilna igra kartama za dva igrača na jednom telefonu. Telefon se stavi na sto 
 
 Pravila su sa [igresakartama.com/tac](https://igresakartama.com/tac/), prilagođena za 2 igrača:
 - Na **sredinu** se ređa rastuće: A, 2 … K, pa ponovo A. Znak nije bitan.
-- Na **protivnikovu otvorenu** gomilu stavlja se karta za jedan veća ili manja (na 6 ide 5 ili 7, na A ide K ili 2). Samo je sredina rastući niz. To je dozvoljeno tek kad je prvi kec na sredini.
+- Na **protivnikovu otvorenu** gomilu stavlja se karta za jedan veća ili manja (na 6 ide 5 ili 7, na A ide K ili 2). Samo je sredina rastući niz. To je dozvoljeno tek kad je prvi kec na sredini. Dok je sredina prazna, karta spuštena na protivnika se samo vraća, bez TAČ-a.
+- **Sredina ima prednost**: karta koja može i na sredinu i na protivnikovu gomilu mora na sredinu. Ako ode na protivnika, to je TAČ.
 - Prvo se igra sa otvorene gomile, a tek onda se okreće zatvorena.
 - Zatvorena gomila se **pritisne i drži**: karta se okreće pod prstom i mora da se prevuče na sredinu ili na protivnikovu gomilu. Ako se pusti bilo gde drugde, ide na igračevu otvorenu gomilu i red prelazi na protivnika.
 - Karta sa otvorene gomile se prevlači na sredinu ili na protivnikovu gomilu.
-- Kad se zatvorena gomila potroši, a karta sa vrha otvorene nema gde, igrač prevlači celu otvorenu gomilu na mesto zatvorene. Gomila se okreće licem nadole (bez mešanja), pa karta koja je bila na dnu otvorene postaje prva sledeća.
+- Kad se zatvorena gomila potroši, a karta sa vrha otvorene nema gde, igrač prevlači celu otvorenu gomilu na mesto zatvorene. Gomila se okreće licem nadole (bez mešanja), pa karta koja je bila na dnu otvorene postaje prva sledeća. Umesto prevlačenja može da se pritisne dugme **Okreni gomilu**, koje se pojavi tek kad je okretanje moguće. Ako je na otvorenoj ostala samo jedna karta, ona se ne okreće: igrač je samo dodirne (ili pritisne **Dalje**) i red prelazi na protivnika.
 - **TAČ**: ko propusti potez ili spusti kartu tamo gde ne ide dobija kartu sa dna protivnikove zatvorene gomile. Igra namerno ne pokazuje koja karta je sledeća ni gde karta može da ide.
 
 ## Podešavanja

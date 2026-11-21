@@ -82,8 +82,18 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+/* status je levo: prst kojim se igra (uglavnom desni kažiprst) ga ne pokriva */
+.side {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  justify-self: start;
+  padding-bottom: 6px;
+}
+
 .aside {
   grid-column: 3;
+  grid-row: 1;
   align-self: end;
   justify-self: end;
   display: flex;
@@ -128,7 +138,7 @@ html, body {
 }
 .slot.has-card { border-color: transparent; }
 .slot.hover { border-color: #fff; border-style: solid; background: rgba(255, 255, 255, 0.12); }
-.slot.hover.has-card .card { box-shadow: 0 0 0 3px #fff, 0 0 18px rgba(255, 255, 255, 0.5); }
+.slot.hover.has-card .card:last-child { box-shadow: 0 0 0 3px #fff, 0 0 18px rgba(255, 255, 255, 0.5); }
 
 #middle {
   position: relative;
@@ -168,7 +178,9 @@ html, body {
   width: var(--cw);
   height: var(--ch);
   margin: calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);
-  rotate: 90deg;
+  /* karte na otvorenoj gomili su blago nakrivljene (--tilt, --dx, --dy postavlja ui.js) */
+  rotate: calc(90deg + var(--tilt, 0deg));
+  translate: var(--dx, 0) var(--dy, 0);
 }
 .card.red { color: var(--red); }
 .card .corner {
@@ -210,18 +222,27 @@ html, body {
   transition: none;
 }
 .card.ghost.flip180 { rotate: 255deg; }
-.card.dragging-src { opacity: 0.3; }
-.slot.closed.refill::after {
-  content: attr(data-hint);
+/* prazna zatvorena: dugme za okretanje otvorene gomile, preko mesta zatvorene */
+.slot.closed.refill { border-color: rgba(255, 255, 255, 0.35); }
+.recycle-btn {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 6px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: calc(100% - 12px);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: 700 15px/1.1 system-ui, sans-serif;
+  color: #3b2c00;
+  background: var(--gold);
+  box-shadow: 0 3px 0 #a8871f, 0 6px 14px rgba(0, 0, 0, 0.35);
+  touch-action: manipulation;
+  animation: pop 0.25s ease-out;
 }
+.recycle-btn[hidden] { display: none; }
+.recycle-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #a8871f; }
 .closed.can-flip .card { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), var(--stack, 0 0 0 transparent), 0 3px 8px rgba(0, 0, 0, 0.35); }
 
 .shake { animation: shake 0.3s; }
