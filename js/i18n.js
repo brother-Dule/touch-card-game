@@ -44,8 +44,8 @@ const sr = {
 };
 
 const en = {
-  docTitle: 'Tač – Touch',
-  title: 'Tač',
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: 'A card game for two players. Put the phone on the table between you.',
   optLang: 'Language',
   optTimer: 'Time limit',
@@ -86,8 +86,8 @@ const en = {
 };
 
 const nb = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Et kortspill for to spillere. Legg telefonen på bordet mellom dere.",
   optLang: "Språk",
   optTimer: "Tidsbegrensning",
@@ -118,8 +118,8 @@ const nb = {
 };
 
 const fr = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Un jeu de cartes pour deux joueurs. Posez le téléphone sur la table entre vous.",
   optLang: "Langue",
   optTimer: "Limite de temps",
@@ -150,8 +150,8 @@ const fr = {
 };
 
 const es = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Un juego de cartas para dos jugadores. Coloquen el teléfono sobre la mesa, entre los dos.",
   optLang: "Idioma",
   optTimer: "Límite de tiempo",
@@ -182,8 +182,8 @@ const es = {
 };
 
 const de = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Ein Kartenspiel für zwei Spieler. Legt das Handy zwischen euch auf den Tisch.",
   optLang: "Sprache",
   optTimer: "Zeitlimit",
@@ -214,8 +214,8 @@ const de = {
 };
 
 const pl = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Gra karciana dla dwóch graczy. Połóżcie telefon na stole między sobą.",
   optLang: "Język",
   optTimer: "Limit czasu",
@@ -246,8 +246,8 @@ const pl = {
 };
 
 const it = {
-  docTitle: "Tač – Touch",
-  title: "Tač",
+  docTitle: 'Touch',
+  title: 'Touch',
   sub: "Un gioco di carte per due giocatori. Mettete il telefono sul tavolo tra di voi.",
   optLang: "Lingua",
   optTimer: "Limite di tempo",
