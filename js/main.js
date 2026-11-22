@@ -84,6 +84,11 @@ function act(action) {
   }
   const { state: next, events } = apply(state, { ...action, now: Date.now() });
   if (events[0]?.type === 'invalid') {
+    // nemoguć potez sa otvorene gomile se ne kažnjava: karta samo padne nazad na gomilu
+    if (events[0].reason === 'illegal') {
+      sfx.place(0, { pile: state.players[action.player].open.length, speed: action.speed });
+      return false;
+    }
     vibrate(30);
     // pritisak na TAČ bez prekršaja i dodir tuđe gomile ostaju tihi – zvuk bi odao da prekršaja nema
     if (action.type !== 'CALL_TOUCH') sfx.invalid();
@@ -97,17 +102,32 @@ function act(action) {
   const win = events.find((e) => e.type === 'win');
   playSound(events, touch, action);
 
+  const turned = events.some((e) => e.type === 'turn');
+  // Vreme se vraća na početak samo kad je karta stavljena na sredinu ili protivnika, ili kad red pređe.
+  // Okretanje karte, okretanje gomile i sl. ne daju novo vreme – inače tajmer gubi smisao.
+  const freshTime = turned || events.some((e) => e.type === 'move');
+  const continueTimer = () => {
+    if (idleTimeouts >= IDLE_LIMIT) return pauseIdle();
+    if (!menu.hidden) return; // „Nastavi“ u meniju nastavlja preostalo vreme
+    if (freshTime || !(timer.running || timer.paused)) restartTimer();
+    else if (timer.paused) timer.resume();
+  };
+
   if (touch) {
     vibrate([90, 60, 90]);
     busy = true;
-    stopTimer();
+    // tokom poruke TAČ vreme stoji; ako red ostaje istom igraču, nastavlja se preostalo vreme
+    if (turned) stopTimer();
+    else {
+      timer.pause();
+      ui.clearTimer();
+    }
     ui.setLocked(true);
     ui.showTouch(touch).then(() => {
       busy = false;
       ui.setLocked(false);
       if (win) finish(win.player);
-      else if (idleTimeouts >= IDLE_LIMIT) pauseIdle();
-      else restartTimer();
+      else continueTimer();
     });
     return true;
   }
@@ -115,8 +135,8 @@ function act(action) {
     finish(win.player);
     return true;
   }
-  if (events.some((e) => e.type === 'turn')) vibrate(15);
-  restartTimer();
+  if (turned) vibrate(15);
+  continueTimer();
   return true;
 }
 

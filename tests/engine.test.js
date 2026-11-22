@@ -70,9 +70,11 @@ test('na protivnika za jedan manja ili veća (5 ili 7 na 6), K/2 na A, A na K', 
   eq(legalMoves(s), [{ from: 'flipped', to: 'opp' }]);
   s = make({ center: [3], p1: { open: [13] }, flipped: 1 });
   eq(legalMoves(s), [{ from: 'flipped', to: 'opp' }]);
-  // 8 na 6 ne ide → TAČ
+  // 8 na 6 ne ide → nema TAČ-a, karta pada na svoju otvorenu i red prelazi
   s = make({ center: [3], p1: { open: [6] }, flipped: 8 });
-  eq(apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' }).events[0].reason, 'illegal');
+  const r2 = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
+  eq(types(r2.events), ['turn']);
+  eq(ranks(r2.state.players[0].open), [8]);
 });
 
 test('AUTO TAČ: propuštena 7 na protivnikovu 6', () => {
@@ -126,28 +128,36 @@ test('RUČNI TAČ: karta stavljena na protivnika umesto na sredinu se pamti', ()
   eq(apply(r.state, { type: 'CALL_TOUCH', player: 1 }).events[0].violation, 'center');
 });
 
-test('AUTO TAČ: karta sa otvorene spuštena gde ne ide', () => {
+test('nemoguć potez sa otvorene se ne kažnjava: karta se vraća', () => {
   const s = make({ center: [4], p0: { open: [9] }, p1: { closed: [2, 3] } });
   const r = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'center' });
-  eq(types(r.events), ['touch', 'turn']);
-  eq(r.events[0].reason, 'illegal');
-  eq(ranks(r.state.center), [4]);
-  eq(ranks(r.state.players[0].open), [9]); // karta ostaje gde je bila
-  eq(r.state.players[0].closed[0].r, 2); // kaznena karta
-  eq(r.state.current, 1);
+  eq(r.events, [{ type: 'invalid', reason: 'illegal' }]);
+  eq(ranks(r.state.players[0].open), [9]);
+  eq(r.state.current, 0);
 });
 
-test('AUTO TAČ: okrenuta karta spuštena gde ne ide ide na svoju otvorenu', () => {
+test('nemoguć potez okrenutom kartom: pada na svoju otvorenu, bez TAČ-a', () => {
   const s = make({ center: [4], flipped: 9, p1: { closed: [2, 3] } });
   const r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'center' });
-  eq(types(r.events), ['touch', 'turn']);
+  eq(types(r.events), ['turn']);
   eq(ranks(r.state.players[0].open), [9]);
   eq(r.state.flipped, null);
+  eq(r.state.players[0].closed.length, 2); // bez kaznene karte
 });
 
-test('RUČNI TAČ: pogrešno spuštena karta se pamti kao prekršaj', () => {
-  let s = make({ autoTouch: false, center: [4], p0: { open: [9] }, p1: { closed: [2, 3] } });
-  s = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'center', now: 1000 }).state;
+test('AUTO TAČ: okrenuta karta spuštena na pogrešno mesto, a imala je gde', () => {
+  // 9 ne ide na sredinu (4), ali ide na protivnikovu 8
+  const s = make({ center: [4], flipped: 9, p1: { open: [8], closed: [2, 3] } });
+  const r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'center' });
+  eq(types(r.events), ['touch', 'turn']);
+  eq(r.events[0].reason, 'own');
+  eq(ranks(r.state.players[0].open), [9]);
+});
+
+test('RUČNI TAČ: propušten potez se pamti kao prekršaj', () => {
+  // 5 sa otvorene ide na sredinu, a igrač okreće zatvorenu
+  let s = make({ autoTouch: false, center: [4], p0: { open: [5] }, p1: { closed: [2, 3] } });
+  s = apply(s, { type: 'FLIP', player: 0, now: 1000 }).state;
   eq(s.current, 0);
   eq(s.lastViolation.player, 0);
   const r = apply(s, { type: 'CALL_TOUCH', player: 1, now: 1500 });
@@ -200,40 +210,54 @@ test('kazna iz otvorene kad je protivnikova zatvorena prazna', () => {
   eq(r.state.players[0].closed[0].r, 11);
 });
 
-test('TIMEOUT bez okrenute karte: kazna, okreće se karta na svoju otvorenu, red prelazi', () => {
+test('TIMEOUT bez poteza: nema kazne, okreće se karta na svoju otvorenu, red prelazi', () => {
   const s = make({ center: [4], p0: { closed: [8, 5] }, p1: { closed: [2, 3] } });
   const r = apply(s, { type: 'TIMEOUT', player: 0 });
-  eq(types(r.events), ['touch', 'flip', 'turn']);
-  eq(r.events[0].reason, 'timeout');
-  // 5 je mogla na sredinu, ali aplikacija ne igra u korist igrača
+  eq(types(r.events), ['flip', 'turn']);
+  // 5 je mogla na sredinu, ali igrač je nije video – aplikacija ne igra u njegovu korist
   eq(ranks(r.state.players[0].open), [5]);
-  eq(ranks(r.state.players[0].closed), [2, 8]);
+  eq(ranks(r.state.players[0].closed), [8]);
   eq(ranks(r.state.center), [4]);
   eq(r.state.current, 1);
 });
 
-test('TIMEOUT dok drži okrenutu kartu: kazna, karta na svoju otvorenu', () => {
-  const s = make({ center: [4], flipped: 9, p1: { closed: [2, 3] } });
+test('TIMEOUT a otvorena karta je imala potez: TAČ', () => {
+  const s = make({ center: [4], p0: { open: [5], closed: [8, 9] }, p1: { closed: [2, 3] } });
+  const r = apply(s, { type: 'TIMEOUT', player: 0 });
+  eq(types(r.events), ['touch', 'flip', 'turn']);
+  eq(r.events[0].reason, 'timeout');
+  eq(ranks(r.state.players[0].open), [5, 9]);
+  eq(ranks(r.state.players[0].closed), [2, 8]); // kaznena karta na dnu
+});
+
+test('TIMEOUT dok drži okrenutu kartu koja je imala gde: TAČ, karta na svoju otvorenu', () => {
+  const s = make({ center: [4], flipped: 5, p1: { closed: [2, 3] } });
   const r = apply(s, { type: 'TIMEOUT', player: 0 });
   eq(types(r.events), ['touch', 'turn']);
-  eq(ranks(r.state.players[0].open), [9]);
+  eq(ranks(r.state.players[0].open), [5]);
   eq(r.state.current, 1);
 });
 
-test('TIMEOUT kažnjava i u ručnom TAČ modu', () => {
-  const s = make({ autoTouch: false, p0: { closed: [8] }, p1: { closed: [2, 3] } });
+test('TIMEOUT dok drži okrenutu kartu koja nema gde: bez kazne', () => {
+  const s = make({ center: [4], flipped: 9, p1: { closed: [2, 3] } });
+  const r = apply(s, { type: 'TIMEOUT', player: 0 });
+  eq(types(r.events), ['turn']);
+  eq(ranks(r.state.players[0].open), [9]);
+});
+
+test('TIMEOUT kažnjava i u ručnom TAČ modu (kad je bilo poteza)', () => {
+  const s = make({ autoTouch: false, center: [4], p0: { open: [5], closed: [8] }, p1: { closed: [2, 3] } });
   const r = apply(s, { type: 'TIMEOUT', player: 0 });
   eq(r.events[0].type, 'touch');
   eq(r.state.current, 1);
 });
 
-test('TIMEOUT sa praznom zatvorenom: vuče se kaznena karta', () => {
-  const s = make({ p0: { closed: [], open: [7, 8] }, p1: { closed: [], open: [3, 4] } });
+test('TIMEOUT sa praznom zatvorenom i bez poteza: gomila se okreće, karta na otvorenu', () => {
+  const s = make({ center: [], p0: { closed: [], open: [7, 8] }, p1: { closed: [], open: [3, 4] } });
   const r = apply(s, { type: 'TIMEOUT', player: 0 });
-  // kazna (3) ide na dno prazne zatvorene, pa se vuče ta karta – otvorena se ne dira
-  eq(types(r.events), ['touch', 'flip', 'turn']);
-  eq(ranks(r.state.players[0].open), [7, 8, 3]);
-  eq(r.state.players[0].closed.length, 0);
+  eq(types(r.events), ['recycle', 'flip', 'turn']);
+  eq(ranks(r.state.players[0].open), [7]);
+  eq(ranks(r.state.players[0].closed), [8]);
 });
 
 test('prazna zatvorena: okretanje karte nije moguće dok se gomila ne prevuče', () => {
@@ -357,11 +381,11 @@ test('RUČNI TAČ: primer – 4 na otvorenoj, 3 u sredini, igrač dira zatvorenu
 });
 
 test('RUČNI TAČ: poziv nosi razlog prvobitnog prekršaja', () => {
-  let s = make({ autoTouch: false, center: [4], p0: { open: [9] }, p1: { closed: [2, 3] } });
-  s = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'center', now: 1000 }).state;
+  let s = make({ autoTouch: false, center: [4], p0: { open: [5] }, p1: { closed: [2, 3] } });
+  s = apply(s, { type: 'FLIP', player: 0, now: 1000 }).state;
   const r = apply(s, { type: 'CALL_TOUCH', player: 1, now: 1200 });
   eq(r.events[0].reason, 'called');
-  eq(r.events[0].violation, 'illegal');
+  eq(r.events[0].violation, 'flip');
 });
 
 test('RUČNI TAČ: poziv bez prekršaja nema kazne', () => {

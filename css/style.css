@@ -49,6 +49,30 @@ html, body {
 }
 #glow[hidden], .no-timer #glow { display: none; }
 
+/* ---------- igrač na potezu: zlatna svetlost se izliva sa njegove ivice ekrana ---------- */
+.turn-light {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 30vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s;
+}
+.turn-light.bottom {
+  bottom: 0;
+  background: radial-gradient(130% 100% at 50% 100%, rgba(255, 213, 79, 0.6), rgba(255, 213, 79, 0.2) 45%, rgba(255, 213, 79, 0) 78%);
+}
+.turn-light.top {
+  top: 0;
+  background: radial-gradient(130% 100% at 50% 0%, rgba(255, 213, 79, 0.6), rgba(255, 213, 79, 0.2) 45%, rgba(255, 213, 79, 0) 78%);
+}
+.turn-light.on { opacity: 1; animation: turn-glow 2.4s ease-in-out infinite; }
+@keyframes turn-glow {
+  50% { opacity: 0.6; }
+}
+
 /* ---------- zone igrača ---------- */
 .zone {
   position: relative;
@@ -70,22 +94,6 @@ html, body {
 }
 .pile-wrap { position: relative; }
 
-/* igrač na potezu: zlatni okvir oko njegovih gomila koji blago pulsira (same karte se ne menjaju) */
-.pile-col { position: relative; }
-.pile-col::before {
-  content: "";
-  position: absolute;
-  inset: -9px;
-  border-radius: calc(var(--radius) + 9px);
-  box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.95), 0 0 28px 6px rgba(255, 213, 79, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-}
-.zone.active .pile-col::before { opacity: 1; animation: turn-glow 1.6s ease-in-out infinite; }
-@keyframes turn-glow {
-  50% { opacity: 0.4; }
-}
 .badge {
   position: absolute;
   top: 50%;

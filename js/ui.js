@@ -20,6 +20,7 @@ export function createUI({ onAction }) {
   const zones = [0, 1].map((p) => buildZone(document.getElementById(`zone-${p}`), p));
   const centerEl = document.getElementById('center');
   const glow = document.getElementById('glow');
+  const lights = [0, 1].map((p) => document.getElementById(`light-${p}`));
   const touchOverlay = document.getElementById('touch-overlay');
   const winOverlay = document.getElementById('win-overlay');
 
@@ -160,6 +161,7 @@ export function createUI({ onAction }) {
       const pl = s.players[p];
       const active = s.current === p && s.winner === null;
       z.el.classList.toggle('active', active);
+      lights[p].classList.toggle('on', active);
       // okrenuta karta koju niko ne drži (ne bi trebalo da se desi) prikazuje se na zatvorenoj
       const loose = active && s.flipped && !drag?.hot;
       if (loose) renderSlot(z.closed, s.flipped);
@@ -355,10 +357,10 @@ export function createUI({ onAction }) {
     const why = evt.violation ?? evt.reason; // ručni TAČ nosi razlog prvobitnog prekršaja
     const text = (p) => {
       const mine = p === evt.offender;
-      const kind = ['illegal', 'timeout', 'center'].includes(why) ? why : 'missed';
+      const kind = ['timeout', 'center'].includes(why) ? why : 'missed';
       return t(kind + (mine ? 'Mine' : 'Opp'));
     };
-    touchOverlay.querySelector('.big').textContent = evt.reason === 'timeout' ? t('time') : t('touch');
+    touchOverlay.querySelector('.big').textContent = t('touch'); // i istek vremena uz propušten potez je TAČ
     top.textContent = text(1);
     bottom.textContent = text(0);
     touchOverlay.hidden = false;

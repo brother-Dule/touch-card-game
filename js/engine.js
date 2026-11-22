@@ -250,9 +250,12 @@ export function apply(prev, action) {
         break;
       }
       if ((to === 'center' && !canPlayCenter(s, card)) || (to === 'opp' && !canPlayOnOpponent(s, p, card))) {
-        // Karta spuštena tamo gde ne ide – i to je TAČ (igrač mora sam da zna šta ide gde)
-        if (violation(s, p, now, events, 'illegal')) break;
-        if (from === 'flipped') endTurn(s, events); // ručni mod: okrenuta karta ide na svoju otvorenu
+        // Nemoguć potez se ne kažnjava: karta sa otvorene se samo vrati na gomilu...
+        if (from === 'open') return invalid(prev, 'illegal');
+        // ...a okrenuta karta padne na svoju otvorenu, kao da je puštena bilo gde.
+        // TAČ je samo ako je igrač imao pravi potez (npr. ova karta je mogla na drugo mesto).
+        if (legalMoves(s, p).length && violation(s, p, now, events, 'own')) break;
+        endTurn(s, events);
         break;
       }
       if (to === 'center') {
@@ -274,9 +277,10 @@ export function apply(prev, action) {
     }
 
     case 'TIMEOUT': {
-      // Svako MORA da igra: kazna + aplikacija okreće sledeću kartu i stavlja je
-      // na igračevu otvorenu gomilu (nikad ne igra u njegovu korist). Red prelazi na protivnika.
-      penalize(s, p, events, 'timeout');
+      // Svako MORA da igra: aplikacija okreće sledeću kartu i stavlja je na igračevu otvorenu
+      // gomilu (nikad ne igra u njegovu korist) i red prelazi na protivnika.
+      // TAČ (kazna) je samo ako je igrač imao potez – spora reakcija se kažnjava, nemoguć potez ne.
+      if (legalMoves(s, p).length) penalize(s, p, events, 'timeout');
       const pl = s.players[p];
       if (!s.flipped) {
         if (!pl.closed.length && pl.open.length) {
