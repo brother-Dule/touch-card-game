@@ -33,16 +33,19 @@ const sr = {
   win: 'Pobeda! 🎉',
   lose: 'Poraz',
   rules: `
-    <li>Svako ima 26 karata u <b>zatvorenoj</b> gomili. Iznad nje pravi svoju <b>otvorenu</b> gomilu.</li>
-    <li>Na <b>sredinu</b> se ređa rastuće: A, 2, 3 … K, pa opet A. Znak nije bitan.</li>
-    <li>Na <b>protivnikovu otvorenu</b> gomilu stavlja se karta za jedan veća ili manja (na 6 ide 5 ili 7, na A ide K ili 2). Samo je sredina rastući niz. Može i dok je sredina još prazna. Ako karta može i na sredinu, mora na sredinu.</li>
-    <li>Prvo igraš kartu sa svoje otvorene gomile: prevuci je na sredinu ili na protivnikovu gomilu.</li>
-    <li>Kad otvorena nema gde: <b>pritisni i drži</b> zatvorenu gomilu. Karta se okreće pod prstom i moraš da je prevučeš na sredinu ili na protivnikovu gomilu.</li>
-    <li>Ako karta nema gde, pusti je bilo gde i ona ide na tvoju otvorenu gomilu. Tada je red na protivniku.</li>
-    <li><b>TAČ!</b> Ko propusti potez dobija kaznenu kartu sa dna protivnikove gomile. Karta spuštena tamo gde ne ide se ne kažnjava: vraća se na tvoju otvorenu gomilu. Igra ne pokazuje koja karta je sledeća ni gde karta može. To moraš sam da znaš.</li>
-    <li><b>Svako mora da igra.</b> Kad istekne vreme, sledeća karta se okreće na tvoju otvorenu gomilu i red prelazi na protivnika. Ako si imao potez, to je i TAČ. Vreme se vraća na početak samo kad staviš kartu na sredinu ili na protivnika.</li>
-    <li>Kad se zatvorena potroši, a karta sa vrha otvorene nema gde, <b>prevuci celu otvorenu gomilu</b> na mesto zatvorene. Gomila se okreće licem nadole i igraš dalje. Ako je karta sa vrha imala gde, to je TAČ. Možeš i da pritisneš dugme <b>Okreni gomilu</b>. Ako je na otvorenoj ostala samo jedna karta, ona se ne okreće: samo je dodirni (ili pritisni <b>Dalje</b>) i red prelazi na protivnika.</li>
-    <li>Pobeđuje ko se prvi reši svih karata.</li>`,
+    <li><b>Cilj:</b> pobeđuje igrač koji se prvi reši svih svojih karata.</li>
+    <li><b>Početak:</b> svaki igrač dobija 26 karata u <b>zatvorenoj</b> gomili, licem nadole. Karte koje ne može da odigra slaže na svoju <b>otvorenu</b> gomilu, između zatvorene gomile i sredine stola. Partiju počinje nasumično izabran igrač. Igrač na potezu se prepoznaje po zlatnoj svetlosti sa njegove strane ekrana.</li>
+    <li><b>Sredina:</b> karte se ređaju rastuće: A, 2, 3 … K, pa ponovo A. Znak nije bitan. Prva karta na sredini mora biti kec.</li>
+    <li><b>Protivnikova gomila:</b> na protivnikovu otvorenu gomilu stavlja se karta za jedan veća ili manja od karte na vrhu (na 6 ide 5 ili 7, na A ide K ili 2). Na praznu protivnikovu gomilu ne može ništa da se stavi. Ovo je dozvoljeno od prvog poteza, i dok na sredini još nema nijedne karte.</li>
+    <li><b>Sredina ima prednost:</b> karta koja može da ide i na sredinu i na protivnikovu gomilu mora da ide na sredinu. Ako je igrač stavi na protivnikovu gomilu, to je TAČ. Isto važi za keca dok je sredina prazna.</li>
+    <li><b>Tok poteza:</b> igrač prvo igra kartu sa vrha svoje otvorene gomile, ako je to moguće. Ako nije, pritisne i drži svoju zatvorenu gomilu: karta se okreće pod prstom i igrač je prevlači na sredinu ili na protivnikovu gomilu. Posle svake odigrane karte igrač nastavlja, sve dok ima poteza.</li>
+    <li><b>Kraj poteza:</b> kad okrenuta karta nema gde da ide, igrač je pusti bilo gde i ona pada na njegovu otvorenu gomilu. Tada je red na protivniku.</li>
+    <li><b>TAČ!</b> Igrač koji propusti potez dobija kaznenu kartu sa dna protivnikove zatvorene gomile i stavlja je na dno svoje. Potez je propušten kada je karta sa vrha otvorene gomile, ili karta koju igrač drži, mogla da ide na sredinu ili na protivnikovu gomilu, a igrač je umesto toga okrenuo novu kartu, spustio okrenutu kartu na svoju gomilu, okrenuo celu gomilu ili je pustio da mu istekne vreme. Igra ne pokazuje gde karta može da ide: igrač to mora sam da primeti.</li>
+    <li><b>Nemoguć potez nije TAČ:</b> karta spuštena tamo gde ne ide se ne kažnjava. Karta sa otvorene gomile se vraća na svoje mesto. Okrenuta karta pada na igračevu otvorenu gomilu i red prelazi na protivnika. Izuzetak: ako je okrenuta karta mogla da ide na neko drugo mesto, to je propušten potez i TAČ.</li>
+    <li><b>Okretanje gomile:</b> kad se zatvorena gomila potroši, a karta sa vrha otvorene nema gde da ide, igrač prevlači celu otvorenu gomilu na mesto zatvorene ili pritisne dugme <b>Okreni gomilu</b>. Gomila se okreće licem nadole, bez mešanja, i igrač nastavlja potez. Ako je na otvorenoj gomili ostala samo jedna karta, ona se ne okreće: igrač je samo dodirne ili pritisne <b>Dalje</b>, i red prelazi na protivnika.</li>
+    <li><b>Vremensko ograničenje</b> <i>(samo kad je uključeno)</i>: igrač ima 3, 5, 8 ili 10 sekundi, a svetlost sa njegove ivice ekrana se povlači kako vreme ističe. Vreme počinje da teče tek posle prvog poteza u partiji. Vraća se na početak samo kad igrač stavi kartu na sredinu ili na protivnikovu gomilu, i kad red pređe na protivnika. Kad vreme istekne, sledeća karta iz zatvorene gomile ide na igračevu otvorenu gomilu i red prelazi na protivnika. Ako je igrač imao potez, dobija i TAČ. Posle tri isteka vremena zaredom igra se pauzira.</li>
+    <li><b>Automatski TAČ</b> <i>(kad je uključen)</i>: igra sama primećuje propušten potez i odmah daje kaznenu kartu. Red tada prelazi na protivnika.</li>
+    <li><b>Ručni TAČ</b> <i>(kad je automatski TAČ isključen)</i>: igra ne kažnjava sama. Svaki igrač ima dugme <b>TAČ!</b> na svom kraju ekrana. Kad protivnik propusti potez, igrač pritiska TAČ!, i to dok protivnik još igra ili pre nego što sam odigra svoj prvi potez posle njega. Prekršilac tada dobija kaznenu kartu, a ako je bio na potezu, red prelazi na drugog igrača. Isti prekršaj se prijavljuje samo jednom, a pritisak kada prekršaja nema ne radi ništa. Istek vremena se i u ovom modu kažnjava automatski.</li>`,
 };
 
 const en = {
