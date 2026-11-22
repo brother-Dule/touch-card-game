@@ -68,7 +68,6 @@ export function canPlayCenter(state, card) {
 }
 
 export function canPlayOnOpponent(state, player, card) {
-  if (!state.center.length) return false; // tek kad je prva karta na sredini
   const o = top(state.players[1 - player].open);
   // samo sredina je rastući niz; na protivnika ide karta za jedan veća ILI manja (K i A su susedi)
   return !!o && (card.r === prevRank(o.r) || card.r === nextRank(o.r));
@@ -243,9 +242,8 @@ export function apply(prev, action) {
       const { from, to } = action;
       const card = sourceCard(s, p, from);
       if (!card) return invalid(prev, 'no-card');
-      // dok je sredina prazna, na protivnika se ne igra – to nije prekršaj, potez jednostavno ne postoji
-      if (to === 'opp' && !s.center.length) return invalid(prev, 'center-empty');
       // sredina ima prednost: karta koja može na sredinu ne sme na protivnika
+      // (i kec dok je sredina prazna – on uvek otvara sredinu)
       if (to === 'opp' && canPlayCenter(s, card)) {
         if (violation(s, p, now, events, 'center')) break;
         if (from === 'flipped') endTurn(s, events);

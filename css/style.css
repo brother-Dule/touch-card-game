@@ -69,6 +69,24 @@ html, body {
   gap: calc(var(--ch) * 0.1);
 }
 .pile-wrap { position: relative; }
+
+/* igrač na potezu: zlatni okvir oko njegovih gomila koji blago pulsira; protivnikove gomile su malo prigušene */
+.pile-col { position: relative; transition: filter 0.3s; }
+.pile-col::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: calc(var(--radius) + 9px);
+  box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.95), 0 0 28px 6px rgba(255, 213, 79, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.zone.active .pile-col::before { opacity: 1; animation: turn-glow 1.6s ease-in-out infinite; }
+@keyframes turn-glow {
+  50% { opacity: 0.4; }
+}
+.zone:not(.active) .pile-col { filter: brightness(0.8) saturate(0.75); }
 .badge {
   position: absolute;
   top: 50%;
@@ -88,6 +106,10 @@ html, body {
   grid-row: 1;
   align-self: end;
   justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   padding-bottom: 6px;
 }
 
@@ -103,6 +125,7 @@ html, body {
   padding-bottom: 6px;
 }
 .status { font-size: 16px; font-weight: 650; }
+.zone.active .status { color: var(--gold); font-size: 18px; font-weight: 800; }
 .zone:not(.active) .status { color: var(--muted); font-weight: 500; }
 .secs {
   font-size: 34px;
@@ -243,7 +266,7 @@ html, body {
 }
 .recycle-btn[hidden] { display: none; }
 .recycle-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #a8871f; }
-.closed.can-flip .card { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), var(--stack, 0 0 0 transparent), 0 3px 8px rgba(0, 0, 0, 0.35); }
+.closed.can-flip .card { box-shadow: 0 0 0 2px rgba(255, 213, 79, 0.8), var(--stack, 0 0 0 transparent), 0 3px 8px rgba(0, 0, 0, 0.35); }
 
 .shake { animation: shake 0.3s; }
 @keyframes shake {

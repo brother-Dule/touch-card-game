@@ -64,7 +64,9 @@ function stopTimer() {
 
 function restartTimer() {
   lastSec = 0;
-  if (settings.timer && state && state.winner === null && menu.hidden) timer.start(settings.seconds * 1000);
+  // vreme počinje da teče tek posle prvog poteza u partiji – igrači prvo vide ko igra prvi
+  const started = state && state.seq > 0;
+  if (settings.timer && started && state.winner === null && menu.hidden) timer.start(settings.seconds * 1000);
   else stopTimer();
 }
 
@@ -215,6 +217,33 @@ function startGame() {
 }
 startBtn.addEventListener('click', startGame);
 document.getElementById('again-btn').addEventListener('click', startGame);
+
+// ---------- bez zumiranja ----------
+// iPhone ne poštuje user-scalable=no: dupli dodir i dva prsta zumiraju stranu, a u igri dva igrača
+// često dodiruju ekran istovremeno. Zato se zum blokira, a već zumirana strana vraća na normalu.
+let lastTouchEnd = 0;
+document.addEventListener(
+  'touchend',
+  (e) => {
+    // drugi dodir u kratkom roku = dupli dodir; padajući meni mora i dalje da radi
+    if (e.timeStamp - lastTouchEnd < 350 && !e.target.closest('select')) e.preventDefault();
+    lastTouchEnd = e.timeStamp;
+  },
+  { passive: false },
+);
+document.addEventListener('dblclick', (e) => e.preventDefault());
+document.addEventListener('gesturestart', (e) => e.preventDefault()); // iPhone: zum sa dva prsta
+
+/** Strana ostala zumirana (Safari pamti zum i posle osvežavanja) – ponovno postavljanje viewport-a je vraća. */
+const viewportMeta = document.querySelector('meta[name="viewport"]');
+const VIEWPORT = viewportMeta.content;
+function resetZoom() {
+  if (!window.visualViewport || window.visualViewport.scale <= 1.01) return;
+  viewportMeta.content = VIEWPORT.replace('initial-scale=1', 'initial-scale=1.0001');
+  requestAnimationFrame(() => (viewportMeta.content = VIEWPORT));
+}
+window.visualViewport?.addEventListener('resize', resetZoom);
+resetZoom();
 
 // ---------- ekran ne sme da se ugasi tokom igre ----------
 let wakeLock = null;

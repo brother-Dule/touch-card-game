@@ -81,19 +81,25 @@ test('AUTO TAČ: propuštena 7 na protivnikovu 6', () => {
   eq(types(r.events), ['touch', 'turn']);
 });
 
-test('pre prve karte na sredini nema igranja na protivnika', () => {
-  const s = make({ center: [], p1: { open: [6] }, p0: { open: [5] }, flipped: 5 });
-  eq(legalMoves(s), []);
-  // potez ne postoji, ali nije ni prekršaj: nema TAČ-a
+test('na protivnika se igra i dok je sredina prazna (karta sa zatvorene i sa otvorene)', () => {
+  let s = make({ center: [], p0: { open: [4] }, p1: { open: [3] }, flipped: 2 });
+  eq(legalMoves(s), [{ from: 'open', to: 'opp' }, { from: 'flipped', to: 'opp' }]);
+  let r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
+  eq(types(r.events), ['move']);
+  eq(ranks(r.state.players[1].open), [3, 2]);
+  // a zatim i sa otvorene: 4 ne ide na 2, ali 3 bi išla – ovde proveravamo 4 na 3 pre poteza
+  r = apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'opp' });
+  eq(types(r.events), ['move']);
+  eq(ranks(r.state.players[1].open), [3, 4]);
+  // propušten potez na protivnika dok je sredina prazna je TAČ
+  s = make({ center: [], p0: { open: [4], closed: [9] }, p1: { open: [3], closed: [2, 3] } });
+  eq(types(apply(s, { type: 'FLIP', player: 0 }).events), ['touch', 'turn']);
+});
+
+test('AUTO TAČ: kec dok je sredina prazna mora na sredinu', () => {
+  const s = make({ center: [], p1: { open: [2], closed: [5, 6] }, flipped: 1 });
   const r = apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'opp' });
-  eq(r.events, [{ type: 'invalid', reason: 'center-empty' }]);
-  eq(ranks(r.state.players[1].open), [6]); // karta NIJE stavljena na protivnika
-  eq(apply(s, { type: 'PLAY', player: 0, from: 'open', to: 'opp' }).events, [{ type: 'invalid', reason: 'center-empty' }]);
-  // ni 4 na protivnikovu 3 dok je sredina prazna
-  const s2 = make({ center: [], p0: { open: [4] }, p1: { open: [3] } });
-  eq(apply(s2, { type: 'PLAY', player: 0, from: 'open', to: 'opp' }).events[0].reason, 'center-empty');
-  // a pošto potez nije postojao, stavljanje na svoju gomilu nije TAČ
-  eq(types(apply(s, { type: 'PLAY', player: 0, from: 'flipped', to: 'own' }).events), ['turn']);
+  eq(r.events[0].reason, 'center');
 });
 
 test('AUTO TAČ: karta koja može na sredinu stavljena na protivnika', () => {

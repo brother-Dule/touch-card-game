@@ -42,10 +42,10 @@ export function createUI({ onAction }) {
         </div>
       </div>
       <div class="side">
+        <span class="secs"></span>
         <span class="status"></span>
       </div>
       <div class="aside">
-        <span class="secs"></span>
         <button class="touch-btn" type="button" data-i18n="touch">TAČ!</button>
       </div>`;
     const q = (s) => el.querySelector(s);
@@ -194,6 +194,7 @@ export function createUI({ onAction }) {
 
   function clearTimer() {
     glow.hidden = true;
+    for (const z of zones) z.secs.textContent = ''; // bez starog broja dok vreme ne krene
   }
 
   // ---------- potezi ----------
@@ -212,8 +213,6 @@ export function createUI({ onAction }) {
   /** Vruća karta MORA negde da padne: prazan sto ili svoja gomila = tvoja otvorena gomila. */
   function dropHot(to, speed) {
     const p = state.current;
-    // dok je sredina prazna, protivnikova gomila nije mesto za kartu – kao da je puštena bilo gde
-    if (to === 'opp' && !state.center.length) to = null;
     if (to === 'center' || to === 'opp') onAction({ type: 'PLAY', player: p, from: 'flipped', to, speed });
     else onAction({ type: 'PLAY', player: p, from: 'flipped', to: 'own', speed });
   }
@@ -336,8 +335,7 @@ export function createUI({ onAction }) {
     const speed = releaseSpeed(d, e);
     if (d.hot) dropHot(to, speed);
     // karta sa otvorene: spuštena na sredinu/protivnika = potez; bilo gde drugde se vraća.
-    // Dok je sredina prazna, protivnikova gomila nije potez – karta se samo vrati.
-    else if (to === 'center' || (to === 'opp' && state.center.length)) {
+    else if (to === 'center' || to === 'opp') {
       onAction({ type: 'PLAY', player: d.player, from: 'open', to, speed });
     }
     // cela otvorena gomila prevučena na praznu zatvorenu = okreće se licem nadole;
