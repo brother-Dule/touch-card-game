@@ -34,6 +34,10 @@ let settings = loadSettings();
 let state = null;
 let busy = false;
 let lastSec = 0; // poslednja sekunda za koju je kucnuo sat
+// Uzastopni isteci vremena bez ijednog poteza: igrači su verovatno napustili partiju,
+// pa se igra pauzira umesto da kažnjava i zvoni u krug.
+const IDLE_LIMIT = 3;
+let idleTimeouts = 0;
 
 // telefoni puštaju zvuk tek posle dodira – zvuk se „otključava“ na svaki dodir (capture: pre svih drugih)
 // iPhone ne prihvata svaki dodir kao dozvolu za zvuk (pointerdown često nije dovoljan), pa se pokušava na više događaja
@@ -87,6 +91,7 @@ function act(action) {
   }
   state = next;
   ui.render(state);
+  idleTimeouts = action.type === 'TIMEOUT' ? idleTimeouts + 1 : 0;
 
   const touch = events.find((e) => e.type === 'touch');
   const win = events.find((e) => e.type === 'win');
@@ -101,6 +106,7 @@ function act(action) {
       busy = false;
       ui.setLocked(false);
       if (win) finish(win.player);
+      else if (idleTimeouts >= IDLE_LIMIT) pauseIdle();
       else restartTimer();
     });
     return true;
@@ -149,6 +155,7 @@ optLang.append(...Object.entries(LANGS).map(([code, name]) => new Option(name, c
 const rowSeconds = document.getElementById('row-seconds');
 const resumeBtn = document.getElementById('resume-btn');
 const startBtn = document.getElementById('start-btn');
+const idleNote = document.getElementById('idle-note');
 
 function applySettingsToPage() {
   optTimer.checked = settings.timer;
@@ -190,8 +197,17 @@ function updateStartLabel() {
   startBtn.textContent = state && state.winner === null ? t('newGame') : t('start');
 }
 
+/** Niko ne igra: igra se pauzira i otvara se meni sa objašnjenjem. */
+function pauseIdle() {
+  stopTimer();
+  idleNote.hidden = false;
+  openMenu();
+}
+
 function closeMenu() {
   menu.hidden = true;
+  idleNote.hidden = true;
+  idleTimeouts = 0;
   requestWakeLock();
 }
 

@@ -344,6 +344,15 @@ html, body {
 }
 .panel h1 { margin: 0; font-size: 40px; letter-spacing: 0.04em; }
 .panel .sub { margin: 4px 0 18px; color: var(--muted); }
+.idle-note {
+  margin: -6px 0 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 213, 79, 0.15);
+  color: var(--gold);
+  font-weight: 600;
+}
+.idle-note[hidden] { display: none; }
 .row {
   display: flex;
   align-items: center;
