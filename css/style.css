@@ -70,8 +70,8 @@ html, body {
 }
 .pile-wrap { position: relative; }
 
-/* igrač na potezu: zlatni okvir oko njegovih gomila koji blago pulsira; protivnikove gomile su malo prigušene */
-.pile-col { position: relative; transition: filter 0.3s; }
+/* igrač na potezu: zlatni okvir oko njegovih gomila koji blago pulsira (same karte se ne menjaju) */
+.pile-col { position: relative; }
 .pile-col::before {
   content: "";
   position: absolute;
@@ -86,7 +86,6 @@ html, body {
 @keyframes turn-glow {
   50% { opacity: 0.4; }
 }
-.zone:not(.active) .pile-col { filter: brightness(0.8) saturate(0.75); }
 .badge {
   position: absolute;
   top: 50%;
@@ -266,7 +265,7 @@ html, body {
 }
 .recycle-btn[hidden] { display: none; }
 .recycle-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #a8871f; }
-.closed.can-flip .card { box-shadow: 0 0 0 2px rgba(255, 213, 79, 0.8), var(--stack, 0 0 0 transparent), 0 3px 8px rgba(0, 0, 0, 0.35); }
+.closed.can-flip .card { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), var(--stack, 0 0 0 transparent), 0 3px 8px rgba(0, 0, 0, 0.35); }
 
 .shake { animation: shake 0.3s; }
 @keyframes shake {
