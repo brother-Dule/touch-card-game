@@ -1,6 +1,7 @@
 // Testovi logike. Pokretanje: otvori tests/index.html u pregledaču
 // ili `node tests/engine.test.js` ako je Node instaliran.
 import { createGame, apply, legalMoves, cardCount } from '../js/engine.js';
+import { demoGame, DEMO_STEPS, stepActions } from '../js/demo.js';
 
 const results = [];
 function test(name, fn) {
@@ -412,6 +413,27 @@ test('simulacija: nasumične partije se završavaju bez grešaka', () => {
       if (total !== 52) throw new Error(`seed ${seed}: ${total} karata`);
     }
   }
+});
+
+test('demo za početnike: svi potezi su validni, TAČ je samo tamo gde je predviđen', () => {
+  let s = demoGame();
+  eq([s.players[0].closed.length, s.players[1].closed.length, s.current], [26, 26, 0], 'početak:');
+  eq(new Set([...s.players[0].closed, ...s.players[1].closed].map((x) => x.id)).size, 52, 'različite karte:');
+  let touches = 0;
+  for (const step of DEMO_STEPS) {
+    for (const action of stepActions(step)) {
+      const r = apply(s, action);
+      if (r.events[0]?.type === 'invalid') throw new Error(`${JSON.stringify(action)}: ${r.events[0].reason}`);
+      const touch = r.events.some((e) => e.type === 'touch');
+      if (touch !== (step.touch !== undefined)) throw new Error(`neočekivan TAČ: ${JSON.stringify(step)}`);
+      if (step.hot !== undefined && action.type === 'FLIP' && !r.state.flipped) throw new Error('karta se nije okrenula');
+      touches += touch;
+      s = r.state;
+    }
+  }
+  eq(touches, 1, 'broj TAČ-eva:');
+  eq(s.current, 1, 'posle TAČ-a igra protivnik:');
+  eq(ranks(s.center), [1, 2, 3, 4, 5], 'sredina:');
 });
 
 export { results };

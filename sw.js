@@ -1,6 +1,6 @@
 // Mreža prvo, keš kao rezerva – nova verzija sa GitHub-a stiže odmah, a igra radi i bez interneta.
-const CACHE = 'tac-v33';
-const FILES = ['./', 'index.html', 'css/style.css', 'js/main.js', 'js/ui.js', 'js/engine.js', 'js/timer.js', 'js/i18n.js', 'js/audio.js', 'manifest.webmanifest', 'icons/icon.svg'];
+const CACHE = 'tac-v34';
+const FILES = ['./', 'index.html', 'css/style.css', 'js/main.js', 'js/ui.js', 'js/engine.js', 'js/timer.js', 'js/i18n.js', 'js/audio.js', 'js/demo.js', 'manifest.webmanifest', 'icons/icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));

@@ -22,10 +22,13 @@
   <section class="zone top" id="zone-1" data-player="1"></section>
   <section id="middle">
     <button id="menu-btn" class="icon-btn" aria-label="Meni" data-i18n-aria="menu">☰</button>
+    <button id="demo-exit" class="icon-btn" aria-label="Zatvori prikaz" data-i18n-aria="demoClose">✕</button>
     <div class="slot center" data-slot="center" id="center"></div>
   </section>
   <section class="zone bottom" id="zone-0" data-player="0"></section>
 </main>
+
+<div id="demo-caption" hidden></div>
 
 <div id="touch-overlay" class="overlay-msg" hidden>
   <div class="msg top"></div>
@@ -86,6 +89,7 @@
       <button id="resume-btn" class="secondary" hidden data-i18n="resume">Nastavi</button>
       <button id="start-btn" class="primary">Počni igru</button>
     </div>
+    <button id="demo-btn" class="secondary demo-btn" data-i18n="demoBtn">Kako se igra</button>
 
     <details>
       <summary data-i18n="rulesTitle">Pravila</summary>

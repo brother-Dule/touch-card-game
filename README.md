@@ -12,6 +12,9 @@ Pravila su sa [igresakartama.com/tac](https://igresakartama.com/tac/), prilagođ
 - Kad se zatvorena gomila potroši, a karta sa vrha otvorene nema gde, igrač prevlači celu otvorenu gomilu na mesto zatvorene. Gomila se okreće licem nadole (bez mešanja), pa karta koja je bila na dnu otvorene postaje prva sledeća. Umesto prevlačenja može da se pritisne dugme **Okreni gomilu**, koje se pojavi tek kad je okretanje moguće. Ako je na otvorenoj ostala samo jedna karta, ona se ne okreće: igrač je samo dodirne (ili pritisne **Dalje**) i red prelazi na protivnika.
 - **TAČ**: ko propusti potez dobija kartu sa dna protivnikove zatvorene gomile. Nemoguć potez se ne kažnjava: karta sa otvorene se vraća na gomilu, a okrenuta karta pada na igračevu otvorenu i red prelazi na protivnika (TAČ je samo ako je igrač imao drugi pravi potez). Igra namerno ne pokazuje koja karta je sledeća ni gde karta može da ide.
 
+## Kako se igra (demonstracija)
+U meniju dugme **Kako se igra** pokreće kratku animiranu partiju (oko minut) na pravom stolu: prst pokazuje kako se okreće i prevlači karta, šta biva kad karta nema gde, kako se igra na protivnikovu gomilu i kako izgleda TAČ. Svi potezi idu kroz pravi engine, uz kratka objašnjenja. Dugme ✕ prekida demonstraciju u svakom trenutku; tekuća partija i podešavanja ostaju netaknuti.
+
 ## Podešavanja
 Igrač na potezu se prepoznaje po zlatnoj svetlosti koja se izliva sa njegove ivice ekrana.
 
@@ -40,4 +43,5 @@ Zatim otvori http://localhost:8765. Testovi logike su na http://localhost:8765/t
 - `js/audio.js`: zvučni efekti
 - `js/main.js`: povezuje delove, meni i podešavanja
 - `js/i18n.js`: prevodi
+- `js/demo.js`: demonstracija za početnike (scenarij i animacija)
 - `tests/`: testovi pravila (u pregledaču ili sa `node tests/engine.test.js`)

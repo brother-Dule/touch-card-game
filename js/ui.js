@@ -27,6 +27,7 @@ export function createUI({ onAction }) {
   let state = null;
   let drag = null;
   let locked = false;
+  let hold = null; // demo: karta „u ruci“ bez pravog prsta ({ player, hot })
 
   // ---------- građenje zone ----------
   function buildZone(el, p) {
@@ -162,11 +163,12 @@ export function createUI({ onAction }) {
       const active = s.current === p && s.winner === null;
       z.el.classList.toggle('active', active);
       lights[p].classList.toggle('on', active);
+      const held = drag ?? hold;
       // okrenuta karta koju niko ne drži (ne bi trebalo da se desi) prikazuje se na zatvorenoj
-      const loose = active && s.flipped && !drag?.hot;
+      const loose = active && s.flipped && !held?.hot;
       if (loose) renderSlot(z.closed, s.flipped);
       else renderSlot(z.closed, pl.closed.length ? {} : null, { faceDown: true, count: pl.closed.length });
-      const lifting = drag && !drag.hot && drag.player === p; // gornja karta otvorene je u ruci
+      const lifting = held && !held.hot && held.player === p; // gornja karta otvorene je u ruci
       renderOpen(z.open, pl.open, lifting);
       z.closed.classList.toggle('can-flip', active && !s.flipped);
       // prazna zatvorena: dugme za okretanje otvorene gomile (jedna karta se ne okreće – samo „Dalje“)
@@ -378,8 +380,30 @@ export function createUI({ onAction }) {
     winOverlay.hidden = false;
   }
 
+  /** Prazan sto (pre prve partije). */
+  function blank() {
+    state = null;
+    for (const z of zones) {
+      renderSlot(z.closed, null);
+      renderOpen(z.open, [], false);
+      z.el.classList.remove('active');
+      z.closed.classList.remove('can-flip', 'refill');
+      z.recycle.hidden = true;
+      z.nClosed.textContent = z.nOpen.textContent = z.status.textContent = '';
+    }
+    lights.forEach((l) => l.classList.remove('on'));
+    renderSlot(centerEl, null);
+  }
+
   return {
     render,
+    blank,
+    cardEl,
+    slot: (kind, p) => (kind === 'center' ? centerEl : zones[p][kind]),
+    setHold: (h) => {
+      hold = h;
+    },
+    hideTouch: () => (touchOverlay.hidden = true),
     setTimer,
     clearTimer,
     showTouch,

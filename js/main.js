@@ -3,6 +3,7 @@ import { createUI } from './ui.js';
 import { TurnTimer } from './timer.js';
 import { LANGS, detectLang, setLang, t } from './i18n.js';
 import * as sfx from './audio.js';
+import { runDemo } from './demo.js';
 
 const DEFAULTS = { timer: true, seconds: 5, autoTouch: true, sound: true, lang: detectLang() };
 const KEY = 'tac-settings';
@@ -38,6 +39,7 @@ let lastSec = 0; // poslednja sekunda za koju je kucnuo sat
 // pa se igra pauzira umesto da kažnjava i zvoni u krug.
 const IDLE_LIMIT = 3;
 let idleTimeouts = 0;
+let demo = null; // demonstracija za početnike u toku: { done, abort }
 
 // telefoni puštaju zvuk tek posle dodira – zvuk se „otključava“ na svaki dodir (capture: pre svih drugih)
 // iPhone ne prihvata svaki dodir kao dozvolu za zvuk (pointerdown često nije dovoljan), pa se pokušava na više događaja
@@ -70,13 +72,13 @@ function restartTimer() {
   lastSec = 0;
   // vreme počinje da teče tek posle prvog poteza u partiji – igrači prvo vide ko igra prvi
   const started = state && state.seq > 0;
-  if (settings.timer && started && state.winner === null && menu.hidden) timer.start(settings.seconds * 1000);
+  if (settings.timer && started && state.winner === null && menu.hidden && !demo) timer.start(settings.seconds * 1000);
   else stopTimer();
 }
 
 /** Jedina tačka kroz koju prolaze sve akcije. Vraća false za nevalidan potez. */
 function act(action) {
-  if (!state) return false;
+  if (!state || demo) return false; // tokom demonstracije prava partija miruje
   if (busy) {
     vibrate(30); // dok traje poruka TAČ, ništa se ne igra
     sfx.invalid();
@@ -108,7 +110,7 @@ function act(action) {
   const freshTime = turned || events.some((e) => e.type === 'move');
   const continueTimer = () => {
     if (idleTimeouts >= IDLE_LIMIT) return pauseIdle();
-    if (!menu.hidden) return; // „Nastavi“ u meniju nastavlja preostalo vreme
+    if (!menu.hidden || demo) return; // „Nastavi“ u meniju nastavlja preostalo vreme
     if (freshTime || !(timer.running || timer.paused)) restartTimer();
     else if (timer.paused) timer.resume();
   };
@@ -252,6 +254,37 @@ function startGame() {
   restartTimer();
 }
 startBtn.addEventListener('click', startGame);
+
+// ---------- demonstracija za početnike ----------
+// Demo igra na istom stolu, ali sa svojim stanjem: tekuća partija i podešavanja ostaju netaknuti.
+const demoCaption = document.getElementById('demo-caption');
+function startDemo() {
+  if (demo) return;
+  timer.pause(); // meni je već pauzirao vreme; ovo je samo za svaki slučaj
+  ui.clearTimer();
+  ui.hideWin();
+  menu.hidden = true;
+  ui.setLocked(true);
+  document.body.classList.add('demo');
+  requestWakeLock();
+  demo = runDemo({ ui, sfx, t, caption: demoCaption });
+  demo.done.then(endDemo);
+}
+function endDemo() {
+  demo = null;
+  document.body.classList.remove('demo');
+  ui.setLocked(busy);
+  if (state) {
+    ui.render(state);
+    if (state.winner !== null) ui.showWin(state.winner);
+  } else ui.blank();
+  openMenu();
+}
+document.getElementById('demo-btn').addEventListener('click', startDemo);
+document.getElementById('demo-exit').addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  demo?.abort();
+});
 document.getElementById('again-btn').addEventListener('click', startGame);
 
 // ---------- bez zumiranja ----------
@@ -291,6 +324,7 @@ async function requestWakeLock() {
   }
 }
 document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && demo) return demo.abort();
   if (document.visibilityState === 'hidden' && state && state.winner === null && menu.hidden) openMenu();
 });
 
